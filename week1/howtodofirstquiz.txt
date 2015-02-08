@@ -1,0 +1,39 @@
+### Load in data
+
+> data <- read.csv("hw1_data.csv")
+
+
+### Find Colum headings
+
+ head(data, 0)
+[1] Ozone   Solar.R Wind    Temp    Month   Day    
+<0 rows> (or 0-length row.names)
+
+### Get number of observations
+
+> nrow(data)
+[1] 153
+
+### Print out rows 152 and 153
+
+> data[c(152, 153),]
+    Ozone Solar.R Wind Temp Month Day
+152    18     131  8.0   76     9  29
+153    20     223 11.5   68     9  30
+
+
+### Value of Ozone in row 47
+
+> data[47,"Ozone"]
+[1] 21
+> data[47,]
+   Ozone Solar.R Wind Temp Month Day
+47    21     191 14.9   77     6  16
+
+
+
+### Find how many missing entries we have in the Ozone Column
+
+> length(data[!complete.cases(data["Ozone"]),"Ozone"])
+[1] 37
+
