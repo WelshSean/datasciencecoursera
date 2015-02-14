@@ -24,11 +24,11 @@ complete <- function(directory, id = 1:332) {
         ## Summing TRUE/FALSE ends up adding 0 or 1 - can be NA so remmoving NA.
         numberComplete <- sum(complete.cases(csv),na.rm=TRUE)
         output <- rbind(output,data.frame(index,numberComplete ))
-        
+      
 
     }
-    setwd(workdir)
+    names(output) <- c("id", "nobs")             ##### No idea why I have to name this again - someting to 
+    setwd(workdir)                               ##### do with the fecking rbind.
     print(output)
-
 }
 
