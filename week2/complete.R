@@ -29,6 +29,7 @@ complete <- function(directory, id = 1:332) {
     }
     names(output) <- c("id", "nobs")             ##### No idea why I have to name this again - someting to 
     setwd(workdir)                               ##### do with the fecking rbind.
-    print(output)
+    #print(output)
+    output
 }
 
