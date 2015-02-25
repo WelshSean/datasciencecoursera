@@ -5,7 +5,11 @@ best <- function(state, outcome) {
     
     ## Check that state and outcome are valid
     
-    if (sum(oocm["State"] == state, na.rm=TRUE) == 0) stop("invalid state")
+    validoutcomes <- c("heart attack", "heart failure", "pneumonia")
+    
+    if (sum(state.abb == state, na.rm=TRUE) == 0) stop("invalid state")
+    if (sum(validoutcomes == outcome, na.rm=TRUE) == 0) stop("invalid outcome")
+    
     ## Return hospital name in that state with lowest 30-day death
     ## rate
 }
