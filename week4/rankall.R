@@ -45,19 +45,22 @@ rankall <- function(outcome, num = "best") {
     # Now loop over and process
     
     for(i in names(datalist))
-    #for(i in c("TX", "MN"))
     {
         datalistlength <- nrow(datalist[[i]]) 
-        print(datalistlength)
+
         ## process num argument
         if (num == "best"){
-            num <- 1
+            numarg <- 1
         } else if (num == "worst"){
-            num <- datalistlength   
-        } ### Not dealing with num > datalistlen unless needed
-        #print(datalist[[i]][num,])
-        #outputdf <- rbind(outputdf, c(datalist[[i]][num,1], i))
-        outputdf[nrow(outputdf) + 1,] <- c(datalist[[i]][num,1], i)
+            #num <- datalistlength
+            numarg <- datalistlength
+        } else if(num%%1==0 ){    ### Check that we actually have an integer value passed
+            numarg <- num
+        } else {
+            stop("Invalid Input")
+        }
+         
+        outputdf[nrow(outputdf) + 1,] <- c(datalist[[i]][numarg,1], i)
         
     }
     outputdf
