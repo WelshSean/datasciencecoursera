@@ -1,0 +1,99 @@
+Question 1
+The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv 
+
+and load the data into R. The code book, describing the variable names is here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf 
+
+Apply strsplit() to split all the names of the data frame on the characters "wgtp". What is the value of the 123 element of the resulting list?
+"wgtp"
+"" "15"
+"wgt" "15"
+"15"
+
+
+> wtgsplit[123]
+[[1]]
+[1] ""   "15"
+
+**** ""   15
+
+Question 2
+Load the Gross Domestic Product data for the 190 ranked countries in this data set: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv 
+
+Remove the commas from the GDP numbers in millions of dollars and average them. What is the average? 
+
+Original data sources: http://data.worldbank.org/data-catalog/GDP-ranking-table
+293700.3
+379596.5
+377652.4
+381668.9
+
+**** 377652.4
+
+Question 3
+In the data set from Question 2 what is a regular expression that would allow you to count the number of countries whose name begins with "United"? Assume that the variable with the country names in it is named countryNames. How many countries begin with United?
+grep("United$",countryNames), 3
+grep("*United",countryNames), 5
+grep("^United",countryNames), 3
+grep("^United",countryNames), 4
+
+> countryNames <- GDP[,"Economy"]
+> grep("^United",countryNames)
+[1]  1  6 32
+Warning messages:
+1: In grep("^United", countryNames) :
+  input string 99 is invalid in this locale
+2: In grep("^United", countryNames) :
+  input string 186 is invalid in this locale
+> Sys.getlocale()
+[1] "LC_CTYPE=en_GB.UTF-8;LC_NUMERIC=C;LC_TIME=en_GB.UTF-8;LC_COLLATE=en_GB.UTF-8;LC_MONETARY=en_GB.UTF-8;LC_MESSAGES=en_GB.UTF-8;LC_PAPER=en_GB.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_GB.UTF-8;LC_IDENTIFICATION=C"
+> Sys.setlocale(locale="C")
+[1] "LC_CTYPE=C;LC_NUMERIC=C;LC_TIME=C;LC_COLLATE=C;LC_MONETARY=C;LC_MESSAGES=en_GB.UTF-8;LC_PAPER=en_GB.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_GB.UTF-8;LC_IDENTIFICATION=C"
+> Sys.getlocale()
+[1] "LC_CTYPE=C;LC_NUMERIC=C;LC_TIME=C;LC_COLLATE=C;LC_MONETARY=C;LC_MESSAGES=en_GB.UTF-8;LC_PAPER=en_GB.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_GB.UTF-8;LC_IDENTIFICATION=C"
+> 
+> grep("^United",countryNames)
+[1]  1  6 32
+
+
+**** grep("^United",countryNames), 3
+
+Question 4
+Load the Gross Domestic Product data for the 190 ranked countries in this data set: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv 
+
+Load the educational data from this data set: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv 
+
+Match the data based on the country shortcode. Of the countries for which the end of the fiscal year is available, how many end in June? 
+
+Original data sources: 
+http://data.worldbank.org/data-catalog/GDP-ranking-table 
+http://data.worldbank.org/data-catalog/ed-stats
+8
+16
+15
+13
+
+
+**** 13
+
+Question 5
+You can use the quantmod (http://www.quantmod.com/) package to get historical stock prices for publicly traded companies on the NASDAQ and NYSE. Use the following code to download data on Amazon's stock price and get the times the data was sampled.
+library(quantmod)
+amzn = getSymbols("AMZN",auto.assign=FALSE)
+sampleTimes = index(amzn) 
+How many values were collected in 2012? How many values were collected on Mondays in 2012?
+252, 50
+251,51
+250, 51
+250, 47
+
+**** 250, 47
