@@ -17,11 +17,11 @@ makeVector <- function(x = numeric()) {
         m <<- NULL
     }
     get <- function() x
-    setmean <- function(mean) m <<- mean
-    getmean <- function() m
+    setinv <- function(inv) i <<- inv
+    getinv <- function() i
     list(set = set, get = get,
-         setmean = setmean,
-         getmean = getmean)
+         setinv = setinv,
+         getinv = getinv)
 }
 
 cachemean <- function(x, ...) {
