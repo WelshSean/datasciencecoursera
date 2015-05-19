@@ -1,0 +1,29 @@
+---
+title: Analysis of NOAA Storm Data to Investigate the Effect of Storms on Public Health
+  and the Economy
+author: "Sean Clarke"
+date: "19/05/2015"
+output: html_document
+---
+
+# Synopsis
+
+
+# Data Processing
+Firstly we download the file and unzip it in the code in order to help to ensure reproducability.
+```{r cache = TRUE}
+DataDir <- "Data"
+FilePath <- paste(DataDir, "Stormdata.csv.bz2", sep="/")
+
+dir.create(DataDir, showWarnings=FALSE) 
+
+## Only download if the file doesnt exist
+if (! file.exists(FilePath)){
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",FilePath , method="curl")
+}
+
+## No need to decompress, read.csv knows what to do
+StormData <- read.csv(FilePath, stringsAsFactors = FALSE)
+```
+
+# Results
