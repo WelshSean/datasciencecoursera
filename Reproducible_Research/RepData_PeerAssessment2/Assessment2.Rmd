@@ -10,7 +10,13 @@ output: html_document
 
 
 # Data Processing
-Firstly we download the file and unzip it in the code in order to help to ensure reproducability.
+
+I obtained data from the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database which records the details of major weather events in the US along with estimates of their impact on the population and economy.
+
+## Reading in the data
+
+Firstly we download the file and unzip it in the code in order to help to ensure reproducability. The file is provided on the NOAA website but for the purposes of this exercise has also been [mirrored seperately](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2). The file is a CSV file that is served up compressed using bzip2.
+
 ```{r cache = TRUE}
 DataDir <- "Data"
 FilePath <- paste(DataDir, "Stormdata.csv.bz2", sep="/")
@@ -23,7 +29,38 @@ download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.
 }
 
 ## No need to decompress, read.csv knows what to do
-StormData <- read.csv(FilePath, stringsAsFactors = FALSE)
+## ColsToKeep used to select interesting columns
+ColsToKeep <- c("BGN_DATE", "BGN_TIME", "TIME_ZONE", "STATE", "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", "CROPDMGEXP")
+StormData <- read.csv(FilePath, stringsAsFactors = FALSE, nrows=10000)[,ColsToKeep] ####REMEMBER TO REMOVE NROWS!!!!!!
 ```
+
+The dataset is massive so we take the opportunity to drop the columns that we have no interest in at this point. We keep the following columns `r ColsToKeep`.
+
+After reading in this dataset we take the chance to see what the structure of the dataset looks like.
+
+```{r}
+dim(StormData)
+head(StormData)
+```
+
+## Processing the Data
+
+Next we want to tidy up the data - first of all we need to combine PROPDMG/PROPDMGEXP and CROPDMG/CROPDMGEXP. The "EXP" columns provide the exponentiation for the value stored in the corresponding "DMG" columne. The symbols, K, M and B respectively representing 10^3, 10^6 and 10^9.
+
+We use a dplyr pipe to start to work through this - first of all we replace K with 1000, M with 1000000 and then B with 1000000000 and then multiple the two columns togther.
+
+```{r}
+require(dplyr)
+StormData <- StormData %>%
+        mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="K", 1000, PROPDMGEXP)) %>%
+        mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="M", 1000000, PROPDMGEXP)) %>%
+        mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="B", 1000000000, PROPDMGEXP)) %>%
+        mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="K", 1000, CROPDMGEXP)) %>%
+        mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="M", 1000000, CROPDMGEXP)) %>%
+        mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="B", 1000000000, CROPDMGEXP)) %>%
+        mutate(PROPDMG=PROPDMG*as.numeric(PROPDMGEXP), CROPDMG=CROPDMG*as.numeric(CROPDMGEXP))
+```
+
+
 
 # Results
