@@ -195,26 +195,47 @@ econData[econData==0] <- NA
 ```
 
 # Results
-## General Comments
+## Macroscopic Analysis
+
+Initially we investigate the macroscopic values across the whole of the US. In order to do this, we plot bar charts showing the sum of the quantities for each class of events.
+
 ```{r}
 require(ggplot2)
 require(gridExtra)
 pa <- ggplot(data=finalData, aes(x=EVTYPE, y=FATALITIES)) +geom_bar(stat="identity")
 pa <- pa + xlab("Event Type") +ylab("Fatalities")
 pa <- pa + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pa <- pa + ggtitle("Fatalities Caused by Severe Weather")
 pb <- ggplot(data=finalData, aes(x=EVTYPE, y=INJURIES)) +geom_bar(stat="identity")
 pb <- pb + xlab("Event Type") +ylab("Injuries")
 pb <- pb + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pb <- pb + ggtitle("Injuries Caused by Severe Weather")
 pc <- ggplot(data=finalData, aes(x=EVTYPE, y=PROPDAMAGE)) +geom_bar(stat="identity")
 pc <- pc + xlab("Event Type") +ylab("Property Damage  ($)") 
 pc <- pc + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pc <- pc + ggtitle("Property Damage Caused by Severe Weather")
 pd <- ggplot(data=finalData, aes(x=EVTYPE, y=CROPDAMAGE)) +geom_bar(stat="identity")
 pd <- pd + xlab("Event Type") +ylab("Crop Damage  ($)") 
 pd <- pd + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pd <- pd + ggtitle("Property Damage Caused by Severe Weather")
 
 grid.arrange(pa,pb,pc,pd, ncol=2)
 ```
-## Health Impact
+
+This data is clearly dominated by Extreme Storms which have the highest value in both of the plots showing human impact and the second highest value in both the plots showing financial impact. This is not surprising given the catastrophic nature of the events contained in this group, for example Hurricanes and Tornados. 
+
+When we consider the plots showing economic impact, Floods become much more important whereas in the other two plots they are not as prominent. This could be explained by the fact that in general, people have much more ability to get out of the way of a flood than they do for something like a Tornado. Buildings and crops however are static and so they are just as much at the mercy of a Flood as an Extreme Storm.
+
+Heat appears to make a significant contribution to Fatalities only - this makes sense as heat is unlikely to injure someone but it is entirely possible to succumb to heat in the form of heat-stroke.
+
+It is also interesting that Thunder appears to be significant in Fatalities - it would make sense to dig further into these figures in order to try and understand why this is significant. Similarly "Other" appears to be a significant contributor to economic impact - further analysis of the events that make up Other might be prudent.
+
+However, we need to be careful - this data does not show the degree of spread in the results and so could potentially be dominated by a small number of unusually large values. We need to look at a more fine grained analysis - in order to do this, we look at box plots.
+
+## Finer Grained Analysis
+### Health Impact
+
+We proceed to look at box plots that show the results pertaining to Injuries and Fatalities for individual states. Initially we plot the quantities that describe the impact of Weather events on health - namely Fatalities and Injuries.
 
 ```{r}
 p1 <-ggplot(healthData, aes(y=INJURIES,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
@@ -228,7 +249,17 @@ p2 <- p2 + ggtitle("Fatalities Caused by Severe Weather Events")
 grid.arrange(p1,p2, ncol=1)
 ```
 
+As expected, when we look at these box plots, further detail is exposed that isnt evident in the bar plots. Again we see that Extreme Storms are the most important when it comes to population health. However when we look at the median and indeed the inter-quartile range, Extreme Storms arent as dominant as they appear from the previous bar charts - this is because there are some extremely large outliers that exaggerate the domainance somewhat. It would be interesting to do further analysis in order to understand if these outliers are "true" values or the result of some clerical, computational or measurement error.
+
+The boxplots strongly suggest that Thunder is important when considering the effects of weather on the population health - again this bears further investigation. Thunder storms obviously do come along with Hurricanes and Tornados so it might be that this is further indication of the importance of such events and potentially suggests that the classification of events used here might be sub-optimal. 
+
+Large outliers also appear to explain the apparent importance of heat in Fatalities described above. Heat has a number of very large outlying values which could possibly be exaggerating its importance - again, further analysis would be helpful to understand the origin of these outliers.
+
+It is not out of the realms of possibility that these outlying values are valid datapoints. We are after all considering an extremely inhomogenous geographical area. A hurricane in the wilds of Oregon would have a vastly different impact on population health than an equivalent storm hitting Downtown Manhattan.
+
 ## Econonomic Impact
+
+Finally we turn to a more in-depth analysis of the impact of Weather Events on the economy. The plots below are box plots that show the results pertaining to $ impact of Property and Crop damage for individual states.
 
 ```{r}
 p3 <-ggplot(econData, aes(y=PROPDAMAGE,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
@@ -241,3 +272,18 @@ p4 <- p4 + theme(axis.text.x = element_text(size=8)) + theme(axis.text.y = eleme
 p4 <- p4 + ggtitle("Crop Damage Caused by Severe Weather Events")
 grid.arrange(p3,p4, ncol=1)
 ```
+
+The thing that initially strikes you when considering these values is the potential impact of outliers. There are more outliers here than there were for the health data and some of them are huge. 
+
+Extreme Storms again are the dominant factor and in contradiction of the bar charts, the median value is higher than for that of floods. The outliers show why this is the case - floods has one outlier that is an order of magnitude than any other which, given that we use a log scale, sticks out that something that bears further investigation. If this value is due to some kind of error then it will be falsely inflating the importance of floods - if it is a valid result then it suggests that a freak event has skewed the figures to make floods appear more important than they normally are.
+
+The other thing that is visible from these plots is that all the weather types across the board have more uniform impact in terms of the economy than public health.
+
+
+#Conclusions
+
+Extreme Storms appear to be the most harmful events with respect to the health of the population.
+
+Extreme Storms and Floods appear to be the dominant types of events in terms of economic consequences.
+
+The figures for floods need to be looked at more closesly as there are some suspiciously large outliers there that could potentially be skewing the figures.
