@@ -91,7 +91,7 @@ StormData %>%
 ```
 So from this analysis, we can conclude that when the columns representing exponentiation are empty then the number of cases where the corresponding value column isnt equal to 0 is statistically insignificant.
 
-Therefore for the purposes of this analysis, only the rows where PROPDMGEXP and CROPDMGEXP are equal to K, M or B are considered - all other observations are discarded.
+Therefore for the purposes of this analysis, only the rows where PROPDMGEXP and CROPDMGEXP are equal to K, M or B are considered - all other observations will be set to NA so that they can be discarded in further analysis. We cannot just filter rows as on some occasions there are valid entries in PROPDMGEXP and undefined ones in CROPDMGEXP and vice-versa.
 
 
 We use a dplyr pipe to start to work through this - first of all we replace K with 1000, M with 1000000 and then B with 1000000000 and then multiple the two columns togther.
@@ -99,13 +99,16 @@ We use a dplyr pipe to start to work through this - first of all we replace K wi
 ```{r}
 
 StormData <- StormData %>%
+        #filter(PROPDMGEXP %in% c("K", "M", "B") & CROPDMGEXP %in% c("K", "M", "B")) %>%
+        mutate(PROPDMGEXP=ifelse(!(PROPDMGEXP %in% c("K", "M", "B")) , NA, PROPDMGEXP)) %>%
+        mutate(CROPDMGEXP=ifelse(!(CROPDMGEXP %in% c("K", "M", "B")) , NA, CROPDMGEXP)) %>%
         mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="K", 1000, PROPDMGEXP)) %>%
         mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="M", 1000000, PROPDMGEXP)) %>%
         mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="B", 1000000000, PROPDMGEXP)) %>%
         mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="K", 1000, CROPDMGEXP)) %>%
         mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="M", 1000000, CROPDMGEXP)) %>%
         mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="B", 1000000000, CROPDMGEXP)) %>%
-        mutate(PROPDMG=PROPDMG*as.numeric(PROPDMGEXP), CROPDMG=CROPDMG*as.numeric(CROPDMGEXP))
+        mutate(PROPDMGEVL=PROPDMG*as.numeric(PROPDMGEXP))
 ```
 
 
