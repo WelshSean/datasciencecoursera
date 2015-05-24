@@ -134,13 +134,13 @@ Now lets try and use regular expressions to tidy EVTYPE up. Clearly there will b
 
 ## Thunderstorms
 TstmWind <- grepl("TSTM|LIGHTN.*|^THUNDE.*|THUNDERSTORM|TSTM  *WIND|THUNDERSTORM  *W|THUNDERSTORMS  *W|TSTMW|THUNDERSTORMW *|TSTM WND|THUDERSTORM WINDS|THUNERSTORM WINDS", StormData$EVTYPE, ignore.case=T )
-StormData[TstmWind,"EVTYPE"] <- "Thunderstorms"
+StormData[TstmWind,"EVTYPE"] <- "Thunder"
 ## Snow
 Snow <- grepl("SNOW|blizzard|sleet", StormData$EVTYPE, ignore.case=T )
 StormData[Snow,"EVTYPE"] <- "Snow"
 ##HighWinds
 HighWinds <- grepl("^High Wind|wind", StormData$EVTYPE, ignore.case=T )
-StormData[HighWinds,"EVTYPE"] <- "High Winds"
+StormData[HighWinds,"EVTYPE"] <- "Wind"
 ## Rain
 Rain <- grepl("RAIN", StormData$EVTYPE, ignore.case=T )
 StormData[Rain,"EVTYPE"] <- "Rain"
@@ -149,7 +149,7 @@ Hail <- grepl("Hail", StormData$EVTYPE, ignore.case=T )
 StormData[Hail,"EVTYPE"] <- "Hail"
 ## Extreme Storms
 ExtStorm <- grepl("tornado|TORNDAO|hurricane|typhoon|Landspout|funnel|spout|whirl|winter storm|tropical|ICE STORM| DUST", StormData$EVTYPE, ignore.case=T )
-StormData[ExtStorm,"EVTYPE"] <- "Extreme Storm"
+StormData[ExtStorm,"EVTYPE"] <- "Ext Storm"
 ## Floods
 Flood <- grepl("flood", StormData$EVTYPE, ignore.case=T )
 StormData[Flood,"EVTYPE"] <- "Floods"
@@ -169,7 +169,7 @@ StormData[DrySpell,"EVTYPE"] <- "Dry Spell"
 WetSpell <- grepl("wet|.*precip.*", StormData$EVTYPE, ignore.case=T )
 StormData[WetSpell,"EVTYPE"] <- "Wet Spell"
 ## Other
-Other <- !(grepl("Thunderstorms|Snow|High Winds|Rain|Hail|Extreme Storm|Floods|Heat|Cold Spell| High Seas| Dry Spell|Wet Spell", StormData$EVTYPE, ignore.case=T))
+Other <- !(grepl("Thunder|Snow|Wind|Rain|Hail|Ext Storm|Floods|Heat|Cold Spell| High Seas| Dry Spell|Wet Spell", StormData$EVTYPE, ignore.case=T))
 StormData[Other,"EVTYPE"] <- "Other"
 ```
 
@@ -180,4 +180,22 @@ finalData <- StormData %>%
                 group_by(EVTYPE, STATE) %>%
                 summarise(FATALITIES=sum(FATALITIES), INJURIES=sum(INJURIES), PROPDAMAGE=sum(PROPDMGEVL, na.rm=TRUE), CROPDAMAGE=sum(PROPDMGEVL, na.rm=TRUE))
 ```
+ When looking into how the weather affects population health in general, we use boxplots to understand the distribution across the US. In order to do this, we need to plot the log of the Y axis due to the wide degree of variation so we need to replace 0 values with NA.
+
+```{r} 
+healthData <- finalData[,c("EVTYPE","STATE","FATALITIES","INJURIES")]
+healthData[healthData==0] <- NA
+```
+
 # Results
+```{r}
+require(ggplot2)
+require(gridExtra)
+p1 <-ggplot(healthData, aes(y=INJURIES,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
+p1 <- p1 + xlab("Event Type") +ylab("Injuries (log Scale)")
+p1 <- p1 + ggtitle("Injuries Caused by Severe Weather Events")
+p2 <-ggplot(healthData, aes(y=FATALITIES,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
+p2 <- p2 + xlab("Event Type") +ylab("Fatalities (log Scale)")
+p2 <- p2 + ggtitle("Fatalities Caused by Severe Weather Events")
+grid.arrange(p1,p2, ncol=1)
+```
