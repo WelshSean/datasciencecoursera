@@ -45,6 +45,7 @@ head(StormData)
 
 ## Processing the Data
 
+
 Next we want to tidy up the data - first of all we need to combine PROPDMG/PROPDMGEXP and CROPDMG/CROPDMGEXP. The "EXP" columns provide the exponentiation for the value stored in the corresponding "DMG" columne. The symbols, K, M and B respectively representing 10^3, 10^6 and 10^9.
 
 There is however a complication - there are additional values in this column which arent well described in the information page.
@@ -108,9 +109,75 @@ StormData <- StormData %>%
         mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="K", 1000, CROPDMGEXP)) %>%
         mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="M", 1000000, CROPDMGEXP)) %>%
         mutate(CROPDMGEXP=ifelse(CROPDMGEXP=="B", 1000000000, CROPDMGEXP)) %>%
-        mutate(PROPDMGEVL=PROPDMG*as.numeric(PROPDMGEXP))
+        mutate(PROPDMGEVL=PROPDMG*as.numeric(PROPDMGEXP)) %>%
+        mutate(CROPDMGEVL=CROPDMG*as.numeric(CROPDMGEXP))
 ```
 
+Next lets investigate the event type column EVTYPE.
 
+```{r}
+length(unique(StormData$EVTYPE))
+head(unique(StormData$EVTYPE), n=50)
+```
 
+One thing that sticks out immediately is that a number of the observation types are summary values so we'll remove those
+
+```{r}
+StormData <- StormData %>%
+    filter(!grepl("ummary", EVTYPE, ignore.case=T))
+```
+
+Now lets try and use regular expressions to tidy EVTYPE up. Clearly there will be some of the choices in groupign the myriad of types in the raw data up into a manageable set of well defined parameters but that is inescapable and at least is well documented in the code below.
+
+```{r}
+## Use logical vectors to record the match
+
+## Thunderstorms
+TstmWind <- grepl("TSTM|LIGHTN.*|^THUNDE.*|THUNDERSTORM|TSTM  *WIND|THUNDERSTORM  *W|THUNDERSTORMS  *W|TSTMW|THUNDERSTORMW *|TSTM WND|THUDERSTORM WINDS|THUNERSTORM WINDS", StormData$EVTYPE, ignore.case=T )
+StormData[TstmWind,"EVTYPE"] <- "Thunderstorms"
+## Snow
+Snow <- grepl("SNOW|blizzard|sleet", StormData$EVTYPE, ignore.case=T )
+StormData[Snow,"EVTYPE"] <- "Snow"
+##HighWinds
+HighWinds <- grepl("^High Wind|wind", StormData$EVTYPE, ignore.case=T )
+StormData[HighWinds,"EVTYPE"] <- "High Winds"
+## Rain
+Rain <- grepl("RAIN", StormData$EVTYPE, ignore.case=T )
+StormData[Rain,"EVTYPE"] <- "Rain"
+## Hail
+Hail <- grepl("Hail", StormData$EVTYPE, ignore.case=T )
+StormData[Hail,"EVTYPE"] <- "Hail"
+## Extreme Storms
+ExtStorm <- grepl("tornado|TORNDAO|hurricane|typhoon|Landspout|funnel|spout|whirl|winter storm|tropical|ICE STORM| DUST", StormData$EVTYPE, ignore.case=T )
+StormData[ExtStorm,"EVTYPE"] <- "Extreme Storm"
+## Floods
+Flood <- grepl("flood", StormData$EVTYPE, ignore.case=T )
+StormData[Flood,"EVTYPE"] <- "Floods"
+## Heat
+Heat <- grepl("hot|heat|warm|high temp", StormData$EVTYPE, ignore.case=T )
+StormData[Heat,"EVTYPE"] <- "Heat"
+## Cold
+Cold <- grepl("cold|low temp|frost|cool|freeze|.*ice.*|.*WINTER.*|.*freezing.*|.*wint.*|.*icy.*", StormData$EVTYPE, ignore.case=T )
+StormData[Cold,"EVTYPE"] <- "Cold Spell "
+## High Seas
+HighSeas <- grepl("tsunami|wave|swell|tide|surf|.*SEA.*", StormData$EVTYPE, ignore.case=T )
+StormData[HighSeas,"EVTYPE"] <- "High Seas"
+##Dry Spell
+DrySpell <- grepl("dry|drought|driest", StormData$EVTYPE, ignore.case=T )
+StormData[DrySpell,"EVTYPE"] <- "Dry Spell"
+##Wet Spell
+WetSpell <- grepl("wet|.*precip.*", StormData$EVTYPE, ignore.case=T )
+StormData[WetSpell,"EVTYPE"] <- "Wet Spell"
+## Other
+Other <- !(grepl("Thunderstorms|Snow|High Winds|Rain|Hail|Extreme Storm|Floods|Heat|Cold Spell| High Seas| Dry Spell|Wet Spell", StormData$EVTYPE, ignore.case=T))
+StormData[Other,"EVTYPE"] <- "Other"
+```
+
+The last bit of processing that we will do before starting to generate results is to throw away the information regarding time for now. The questions that we are attempting to ask are looking to investigate the dependencies on event types rather than time so we will aggregate the data.
+
+```{r}
+finalData <- StormData %>%
+                group_by(EVTYPE, STATE) %>%
+                summarise(FATALITIES=sum(FATALITIES), INJURIES=sum(INJURIES), PROPDAMAGE=sum(PROPDMGEVL, na.rm=TRUE), CROPDAMAGE=sum(PROPDMGEVL, na.rm=TRUE))
+```
 # Results
