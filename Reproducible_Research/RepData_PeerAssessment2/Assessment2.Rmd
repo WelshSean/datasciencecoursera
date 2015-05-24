@@ -187,15 +187,57 @@ healthData <- finalData[,c("EVTYPE","STATE","FATALITIES","INJURIES")]
 healthData[healthData==0] <- NA
 ```
 
+We need to do a similar analysis for the data regarding economic impact.
+
+```{r} 
+econData <- finalData[,c("EVTYPE","STATE","PROPDAMAGE","CROPDAMAGE")]
+econData[econData==0] <- NA
+```
+
 # Results
+## General Comments
 ```{r}
 require(ggplot2)
 require(gridExtra)
+pa <- ggplot(data=finalData, aes(x=EVTYPE, y=FATALITIES)) +geom_bar(stat="identity")
+pa <- pa + xlab("Event Type") +ylab("Fatalities")
+pa <- pa + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pb <- ggplot(data=finalData, aes(x=EVTYPE, y=INJURIES)) +geom_bar(stat="identity")
+pb <- pb + xlab("Event Type") +ylab("Injuries")
+pb <- pb + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pc <- ggplot(data=finalData, aes(x=EVTYPE, y=PROPDAMAGE)) +geom_bar(stat="identity")
+pc <- pc + xlab("Event Type") +ylab("Property Damage  ($)") 
+pc <- pc + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+pd <- ggplot(data=finalData, aes(x=EVTYPE, y=CROPDAMAGE)) +geom_bar(stat="identity")
+pd <- pd + xlab("Event Type") +ylab("Crop Damage  ($)") 
+pd <- pd + theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1))
+
+grid.arrange(pa,pb,pc,pd, ncol=2)
+```
+## Health Impact
+
+```{r}
 p1 <-ggplot(healthData, aes(y=INJURIES,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
-p1 <- p1 + xlab("Event Type") +ylab("Injuries (log Scale)")
+p1 <- p1 + xlab("Event Type") +ylab("Injuries (log Scale)") 
+p1 <- p1 + theme(axis.text.x = element_text(size=8)) + theme(axis.text.y = element_text(size=8))
 p1 <- p1 + ggtitle("Injuries Caused by Severe Weather Events")
 p2 <-ggplot(healthData, aes(y=FATALITIES,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
 p2 <- p2 + xlab("Event Type") +ylab("Fatalities (log Scale)")
+p2 <- p2 + theme(axis.text.x = element_text(size=8)) + theme(axis.text.y = element_text(size=8))
 p2 <- p2 + ggtitle("Fatalities Caused by Severe Weather Events")
 grid.arrange(p1,p2, ncol=1)
+```
+
+## Econonomic Impact
+
+```{r}
+p3 <-ggplot(econData, aes(y=PROPDAMAGE,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
+p3 <- p3 + xlab("Event Type") +ylab("Property Damage  ($ -log Scale)") 
+p3 <- p3 + theme(axis.text.x = element_text(size=8)) + theme(axis.text.y = element_text(size=8))
+p3 <- p3 + ggtitle("Property Damage Caused by Severe Weather Events")
+p4 <-ggplot(econData, aes(y=CROPDAMAGE,x=EVTYPE)) + geom_boxplot() +  coord_trans(y = "log10")
+p4 <- p4 + xlab("Event Type") +ylab("Crop Damage ($ - log Scale)")
+p4 <- p4 + theme(axis.text.x = element_text(size=8)) + theme(axis.text.y = element_text(size=8))
+p4 <- p4 + ggtitle("Crop Damage Caused by Severe Weather Events")
+grid.arrange(p3,p4, ncol=1)
 ```
