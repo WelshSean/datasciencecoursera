@@ -48,7 +48,7 @@ head(StormData)
 ## Processing the Data
 
 
-Next we want to tidy up the data - first of all we need to combine PROPDMG/PROPDMGEXP and CROPDMG/CROPDMGEXP. The "EXP" columns provide the exponentiation for the value stored in the corresponding "DMG" columne. The symbols, K, M and B respectively representing 10^3, 10^6 and 10^9.
+Next we want to tidy up the data - first of all we need to combine PROPDMG/PROPDMGEXP and CROPDMG/CROPDMGEXP. The "EXP" columns provide the exponentiation for the value stored in the corresponding "DMG" column. The symbols, K, M and B respectively representing 10^3, 10^6 and 10^9.
 
 There is however a complication - there are additional values in this column which arent well described in the information page.
 
@@ -77,7 +77,7 @@ StormData %>%
 
 ```
 
-This shows us that the only undefined symbol that is likely to be statistically significant is "". Lets have a close look at that one.
+This shows us that the only undefined symbol that is likely to be statistically significant is "". Lets have a closer look at that one.
 
 ```{r}
 StormData %>%
@@ -129,7 +129,7 @@ StormData <- StormData %>%
     filter(!grepl("ummary", EVTYPE, ignore.case=T))
 ```
 
-Now lets try and use regular expressions to tidy EVTYPE up. Clearly there will be some of the choices in groupign the myriad of types in the raw data up into a manageable set of well defined parameters but that is inescapable and at least is well documented in the code below.
+Now lets try and use regular expressions to tidy EVTYPE up. Clearly there will be some arbitrariness of the choices in grouping the myriad of types in the raw data up into a manageable set of well defined parameters but that is inescapable and at least is well documented in the code below.
 
 ```{r}
 ## Use logical vectors to record the match
@@ -175,7 +175,7 @@ Other <- !(grepl("Thunder|Snow|Wind|Rain|Hail|Ext Storm|Floods|Heat|Cold Spell| 
 StormData[Other,"EVTYPE"] <- "Other"
 ```
 
-The last bit of processing that we will do before starting to generate results is to throw away the information regarding time for now. The questions that we are attempting to ask are looking to investigate the dependencies on event types rather than time so we will aggregate the data.
+The last bit of processing that we will do before starting to generate results is to generate a version of the data with the time dependency removed. The questions that we are attempting to answer are looking to investigate the dependencies on event types rather than time so we dont need the time dependency data at present.
 
 ```{r}
 finalData <- StormData %>%
@@ -251,7 +251,7 @@ p2 <- p2 + ggtitle("Fatalities Caused by Severe Weather Events")
 grid.arrange(p1,p2, ncol=1)
 ```
 
-As expected, when we look at these box plots, further detail is exposed that isnt evident in the bar plots. Again we see that Extreme Storms are the most important when it comes to population health. However when we look at the median and indeed the inter-quartile range, Extreme Storms arent as dominant as they appear from the previous bar charts - this is because there are some extremely large outliers that exaggerate the domainance somewhat. It would be interesting to do further analysis in order to understand if these outliers are "true" values or the result of some clerical, computational or measurement error.
+As expected, when we look at these box plots, further detail is exposed that isnt evident in the bar plots. Again we see that Extreme Storms are the most important when it comes to population health. However when we look at the median and indeed the inter-quartile range, Extreme Storms arent as dominant as they appear in the previous bar charts - this is because there are some extremely large outliers that exaggerate the domainance somewhat. It would be interesting to do further analysis in order to understand if these outliers are "true" values or the result of some clerical, computational or measurement error.
 
 The boxplots strongly suggest that Thunder is important when considering the effects of weather on the population health - again this bears further investigation. Thunder storms obviously do come along with Hurricanes and Tornados so it might be that this is further indication of the importance of such events and potentially suggests that the classification of events used here might be sub-optimal. 
 
