@@ -8,6 +8,8 @@ output: html_document
 
 # Synopsis
 
+In this report we aim to investigate the impact of Weather Events upon the Population Health and the Economy of the US. More specifically we aim to answer two questions. Which types of events are most harmful with respect to Population Health and which types of events have the greatest economic consequences. To investigate these we obtained data from the NOAA storm database which has data describing weather events since the 1950s. We discovered that Extreme Storms (eg Hurricanes and Tornados) are certainly the most harmful events with respect to the health of the population. Extreme Storms and Floods appear to be almost equally impactful upon the economy of the US, however the data pertaining to Floods needs more attention as there are some suspiciously large outliers that could be skewing the statistics. The NOAA data in general seems to be extremely messy with some parts appearing to be extremely dubious in their reliability. Further detailed analysis of the issues would be helpful in terms of maximising the value of this resource.
+
 
 # Data Processing
 
