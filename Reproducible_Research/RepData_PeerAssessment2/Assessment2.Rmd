@@ -31,7 +31,7 @@ download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.
 ## No need to decompress, read.csv knows what to do
 ## ColsToKeep used to select interesting columns
 ColsToKeep <- c("BGN_DATE", "BGN_TIME", "TIME_ZONE", "STATE", "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", "CROPDMGEXP")
-StormData <- read.csv(FilePath, stringsAsFactors = FALSE, nrows=10000)[,ColsToKeep] ####REMEMBER TO REMOVE NROWS!!!!!!
+StormData <- read.csv(FilePath, stringsAsFactors = FALSE)[,ColsToKeep]
 ```
 
 The dataset is massive so we take the opportunity to drop the columns that we have no interest in at this point. We keep the following columns `r ColsToKeep`.
@@ -47,10 +47,57 @@ head(StormData)
 
 Next we want to tidy up the data - first of all we need to combine PROPDMG/PROPDMGEXP and CROPDMG/CROPDMGEXP. The "EXP" columns provide the exponentiation for the value stored in the corresponding "DMG" columne. The symbols, K, M and B respectively representing 10^3, 10^6 and 10^9.
 
-We use a dplyr pipe to start to work through this - first of all we replace K with 1000, M with 1000000 and then B with 1000000000 and then multiple the two columns togther.
+There is however a complication - there are additional values in this column which arent well described in the information page.
+
+```{r}
+unique(StormData$PROPDMGEXP)
+unique(StormData$CROPDMGEXP)
+```
+We next investigate how important the undefined symbols are in this range
 
 ```{r}
 require(dplyr)
+aggregate(StormData$PROPDMGEXP, by=list(StormData$PROPDMGEXP), FUN=length)
+aggregate(StormData$CROPDMGEXP, by=list(StormData$PROPDMGEXP), FUN=length)
+StormData %>%
+    filter(PROPDMGEXP %in% c("K","M","B", "")) %>%
+    summarise(Total=n())
+StormData %>%
+    filter(!(PROPDMGEXP %in% c("K","M","B", ""))) %>%
+    summarise(Total=n())
+StormData %>%
+    filter(CROPDMGEXP %in% c("K","M","B", "")) %>%
+    summarise(Total=n())
+StormData %>%
+    filter(!(CROPDMGEXP %in% c("K","M","B", ""))) %>%
+    summarise(Total=n())
+
+```
+
+This shows us that the only undefined symbol that is likely to be statistically significant is "". Lets have a close look at that one.
+
+```{r}
+StormData %>%
+    filter(CROPDMGEXP =="") %>%
+    group_by(CROPDMGEXP,CROPDMG) %>%
+    summarise(Total=n())
+```
+
+```{r}
+StormData %>%
+    filter(PROPDMGEXP =="") %>%
+    group_by(PROPDMGEXP,PROPDMG) %>%
+    summarise(Total=n())
+```
+So from this analysis, we can conclude that when the columns representing exponentiation are empty then the number of cases where the corresponding value column isnt equal to 0 is statistically insignificant.
+
+Therefore for the purposes of this analysis, only the rows where PROPDMGEXP and CROPDMGEXP are equal to K, M or B are considered - all other observations are discarded.
+
+
+We use a dplyr pipe to start to work through this - first of all we replace K with 1000, M with 1000000 and then B with 1000000000 and then multiple the two columns togther.
+
+```{r}
+
 StormData <- StormData %>%
         mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="K", 1000, PROPDMGEXP)) %>%
         mutate(PROPDMGEXP=ifelse(PROPDMGEXP=="M", 1000000, PROPDMGEXP)) %>%
