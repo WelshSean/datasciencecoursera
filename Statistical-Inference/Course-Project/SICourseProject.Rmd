@@ -5,9 +5,36 @@ date: "24 July 2015"
 output: pdf_document
 ---
 
-Title (give an appropriate title) and Author Name
-Overview: In a few (2-3) sentences explain what is going to be reported on.
-Simulations: Include English explanations of the simulations you ran, with the accompanying R code. Your explanations should make clear what the R code accomplishes.
-Sample Mean versus Theoretical Mean: Include figures with titles. In the figures, highlight the means you are comparing. Include text that explains the figures and what is shown on them, and provides appropriate numbers.
-Sample Variance versus Theoretical Variance: Include figures (output from R) with titles. Highlight the variances you are comparing. Include text that explains your understanding of the differences of the variances.
-Distribution: Via figures and text, explain how one can tell the distribution is approximately normal.
+
+# Overview
+
+This report is a brief study intended to investigate how the exponential distribution adheres to the **Central Limit Theorem(CLT)**. The CLT states that the distribution of the sum (or mean) of a large number of independent, identically distributed variables will be approximately normal irrespective of the underlying distribution.
+
+# Simulations
+
+We now proceed to perform simulations to investigate how the sample mean and variance approximate the population variance and  mean. We take mutltiple samples of the mean of 40 exponentials.From the central limit theorem, we would expect:
+
+
+$$E[\overline{X}] = \mu_{Pop}$$ 
+
+$$Var[\overline{X}] = \sigma^{2}_{Pop}/n$$
+
+The Exponential distribution has PDF
+
+$$  f(x, \lambda)=\begin{cases}
+    \lambda e^{-\lambda x}, & \text{if $x>=0$}.\\
+    0, & \text{if $x<0$}.
+  \end{cases}$$
+  
+where
+
+$$ E[X] = \lambda $$
+$$ Var[X] = \lambda^{2} $$
+
+In this analysis we calculate the exponentials using the R function $rexp(n, \lambda)$ where we fix $\lambda = 0.2$ 
+
+## Sample Mean versus Theoretical Mean: 
+
+
+
+#Distribution: Via figures and text, explain how one can tell the distribution is approximately normal.
