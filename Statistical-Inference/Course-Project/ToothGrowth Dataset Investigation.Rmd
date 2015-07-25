@@ -1,0 +1,11 @@
+---
+title: "Investigation of the ToothGrowth Dataset"
+author: "Sean Clarke"
+date: "25 July 2015"
+output: pdf_document
+---
+
+```{r}
+library(datasets)
+data("ToothGrowth")
+```
