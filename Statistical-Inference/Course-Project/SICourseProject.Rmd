@@ -40,19 +40,30 @@ lambda <- 0.2
 mns <- NULL
 for (i in 1 : numberSims) {mns <- c(mns, mean(rexp(numberMeans,lambda)))}
 ```
-## Sample Mean versus Theoretical Mean: 
+## Sample Mean versus Theoretical Mean 
 
 Initially we consider comparison between the mean calculated from the data set and what the mean should be according to the CLT. So according to the CLT, for a sufficiently large data set, the sample means should follow a normal distribution with mean $\mu$, for the exponential distribution:
 
-$$ \mu = 1/\lambda = 5 $$
+$$ E[\overline{X}] = \mu = 1/\lambda$$
 
 Then we proceed to calculate the mean of dataset
 
 ```{r}
-meanXBar <- mean(mns)
-meanXBar
+c(1/lambda,mean(mns))
 ```
 
 So we the mean calculated in the simulation is very close to the theoretical mean.
+
+## Sample Variance versus Theoretical Variance
+
+According to the CLT, the variance for means of an Exponential distribution is given by
+
+$$ V[\overline{X}] = \sigma^{2}/n = (1/\lambda)^{2}/n = 1/\lambda^{2}n = $$
+
+```{r}
+c(1/(lambda^2*numberMeans), var(mns))
+```
+
+Again we see that the theoretical mean is very close to that obtained from the simulation.
 
 #Distribution: Via figures and text, explain how one can tell the distribution is approximately normal.
