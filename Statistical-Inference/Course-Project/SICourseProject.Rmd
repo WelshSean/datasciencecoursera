@@ -4,7 +4,10 @@ author: "Sean Clarke"
 date: "24 July 2015"
 output: pdf_document
 ---
-
+```{r echo=FALSE}
+# Loading libraries
+library(ggplot2)
+```
 
 # Overview
 
@@ -34,7 +37,8 @@ $$ Var[X] = 1/\lambda^{2} $$
 In this analysis we calculate the exponentials using the R function $rexp(n, \lambda)$ where we fix $\lambda = 0.2$. Firstly we generate the data set.
 
 ```{r}
-numberSims <- 1000
+numberSims <-  1000
+numberSims2 <- 100000
 numberMeans <- 40
 lambda <- 0.2
 mns <- NULL
@@ -66,4 +70,29 @@ c(1/(lambda^2*numberMeans), var(mns))
 
 Again we see that the theoretical mean is very close to that obtained from the simulation.
 
-#Distribution: Via figures and text, explain how one can tell the distribution is approximately normal.
+## Comparison of sample date with the corresponding Normal Distribution
+
+```{r}
+mnsdf <- as.data.frame(mns)
+ggplot(data=mnsdf, aes(x=mns)) + geom_histogram(aes(y = ..density..), colour="black", fill="white", binwidth = 0.1) +
+  geom_vline(xintercept = (1/lambda), colour="green") + 
+  geom_vline(xintercept = mean(mns), colour="blue") +
+     stat_function(fun=dnorm, arg=list(mean=1/lambda, sd=sqrt(1/(lambda^2*numberMeans)) ), colour="red" ) 
+```
+
+This shows that the distribution of the means certainly appears to have a Gaussian form and as we have seen above, the mean and variance obtained from the simulated data are very close to that predicted by the CLT. Now we can see that the distribution is still a little bit skewed, this comes from the combination of the exponential distribution being skewed and the relatively small number of samples used in the simulation. If we up the number of samples then we will see an improved fit.
+```{r}
+mns2 <- NULL
+for (i in 1 : numberSims2) {mns2 <- c(mns2, mean(rexp(numberMeans,lambda)))}
+mnsdf2 <- as.data.frame(mns2)
+ggplot(data=mnsdf2, aes(x=mns2)) + geom_histogram(aes(y = ..density..), colour="black", fill="white", binwidth = 0.1) +
+  stat_function(fun=dnorm, arg=list(mean=1/lambda, sd=sqrt(1/(lambda^2*numberMeans)) ), colour="red" ) 
+```
+
+This is also reflected in the means ans variance
+
+```{r}
+c(1/lambda,mean(mns2))
+c(1/(lambda^2*numberMeans), var(mns2))
+```
+
