@@ -28,13 +28,31 @@ $$  f(x, \lambda)=\begin{cases}
   
 where
 
-$$ E[X] = \lambda $$
-$$ Var[X] = \lambda^{2} $$
+$$ E[X] = 1/\lambda $$
+$$ Var[X] = 1/\lambda^{2} $$
 
-In this analysis we calculate the exponentials using the R function $rexp(n, \lambda)$ where we fix $\lambda = 0.2$ 
+In this analysis we calculate the exponentials using the R function $rexp(n, \lambda)$ where we fix $\lambda = 0.2$. Firstly we generate the data set.
 
+```{r}
+numberSims <- 1000
+numberMeans <- 40
+lambda <- 0.2
+mns <- NULL
+for (i in 1 : numberSims) {mns <- c(mns, mean(rexp(numberMeans,lambda)))}
+```
 ## Sample Mean versus Theoretical Mean: 
 
+Initially we consider comparison between the mean calculated from the data set and what the mean should be according to the CLT. So according to the CLT, for a sufficiently large data set, the sample means should follow a normal distribution with mean $\mu$, for the exponential distribution:
 
+$$ \mu = 1/\lambda = 5 $$
+
+Then we proceed to calculate the mean of dataset
+
+```{r}
+meanXBar <- mean(mns)
+meanXBar
+```
+
+So we the mean calculated in the simulation is very close to the theoretical mean.
 
 #Distribution: Via figures and text, explain how one can tell the distribution is approximately normal.
