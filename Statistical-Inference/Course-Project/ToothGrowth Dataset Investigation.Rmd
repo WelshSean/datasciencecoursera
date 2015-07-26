@@ -12,7 +12,7 @@ library(dplyr)
 library(ggplot2)
 ```
 
-# Data Manipulation
+# Data Exploration
 We load the data from the "ToothGrowth" dataset and have an initial look at it in order to decide what (if any) processing is necessary.
 
 
@@ -25,12 +25,54 @@ The help page for the ToothGrowth data set shows us that this dataset contains d
 
 * len - the ToothLength [numeric]
 * supp - Type of supplement give to the animal (Vitamin C (VC) or Orange Jice (OJ)) [factor]
-* dos - the dose of the supplement fiven in miligrams [numeric]
+* dose - the dose of the supplement fiven in milligrams [numeric]
 
-We initially plot the mean length of teeth against does as shown in the faceted plot below. We see that there does appears to be a relationship between does and the length of the teeth. There are too few data points to speculate on the nature of the relationship although naively it initially appears to be somewhat linear.
+```{r}
+str(ToothGrowth)
+```
+
+We summarise the data, grouping by sup and dose and computing mean lengths in order to allow us to do some high level analysis.
 
 ```{r}
 summary <- group_by(ToothGrowth,supp, dose) %>%
   summarise(MeanLength=mean(len))
-ggplot(data=summary, aes(x=dose, y=MeanLength)) + geom_point() + geom_smooth(method =	"lm") + facet_grid(. ~ supp, scales="free_y")
+```
+
+
+We initially plot the mean length of teeth against does as shown in the boxplots below. We see that there does appears to be a relationship between does and the length of the teeth. There are too few data points to speculate on the nature of the relationship although naively it initially appears to be somewhat linear.
+
+```{r}
+
+ggplot(ToothGrowth, aes(y=len,x=factor(dose))) + geom_boxplot() + facet_grid(. ~ supp, scales="free_y") + xlab("Dose (milligrams)") + ylab("Tooth Length ")
+
+```
+
+The boxplots also suggest that Orange Juice has a greater effect than Vitamin C on the response but the spread of the data makes this far from certain and this bears more detailed examination.
+
+# Data Manipulation
+
+In order to allow us to do t-tests for differences between different combinations, we now need to reshape the data so that lengths for each Supplement and Dose are in seperate columns (ie we want to go from a narrow to wide format). I'll actually leave it as two seperate dtaframes, one for OJ and one for VC.
+
+```{r}
+# Using Reshap/dcast would be nice but lack of uniqueness in labels makes it PAINFUL!
+VC <- ToothGrowth[ToothGrowth$sup == "VC",]
+VCbyDose <- as.data.frame(with(VC, split(len, dose)))
+names(VCbyDose) <- gsub("X", "Dose", names(VCbyDose), fixed=TRUE)
+
+OJ <- ToothGrowth[ToothGrowth$sup == "OJ",]
+OJbyDose <- as.data.frame(with(OJ, split(len, dose)))
+names(OJbyDose) <- gsub("X", "Dose", names(OJbyDose), fixed=TRUE)
+```
+
+# In-depth analysis
+
+## First hypothesis - impact of dose on tooth length
+
+*Hypothesis* The response of the Guinea Pigs Tooth Length is proportional to the dose of the supplement that they receive.
+
+Firstly lets compare each end of the range of doses for each supplement.
+
+```{r}
+#t.test(VCbyDose$Dose2 - VCbyDose$Dose0.5, alternative = "greater", paired=FALSE, var.equal=FALSE)
+t.test(VCbyDose$Dose2 - VCbyDose$Dose0.5, paired=FALSE, var.equal=FALSE)
 ```
