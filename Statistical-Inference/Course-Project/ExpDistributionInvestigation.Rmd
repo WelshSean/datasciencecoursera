@@ -10,25 +10,18 @@ library(ggplot2)
 
 # Overview
 
-This report is a brief study intended to investigate how the exponential distribution adheres to the **Central Limit Theorem(CLT)**. The CLT states that the distribution of the sum (or mean) of a large number of independent, identically distributed variables will be approximately normal irrespective of the underlying distribution.
+This report is a brief study intended to investigate how the exponential distribution adheres to the **Central Limit Theorem(CLT)**. The CLT states that the distribution of the sum (or mean) of a large number of independent, identically distributed variables will be approximately normal irrespective of the underlying distribution for a sufficiently large sample size.
 
 # Simulations
 
-We now proceed to perform simulations to investigate how the sample mean and variance approximate the population variance and  mean. We take mutltiple samples of the mean of 40 exponentials.From the central limit theorem, we would expect:
+We now proceed to perform simulations to investigate how the sample mean and variance approximate the population variance and  mean. We take mutltiple samples of the mean of 40 exponentials. From the central limit theorem, we would expect:
 
 
 $$E[\overline{X}] = \mu_{Pop}$$ 
 
 $$Var[\overline{X}] = \sigma^{2}_{Pop}/n$$
 
-The Exponential distribution has PDF
-
-$$  f(x, \lambda)=\begin{cases}
-    \lambda e^{-\lambda x}, & \text{if $x>=0$}.\\
-    0, & \text{if $x<0$}.
-  \end{cases}$$
-  
-where
+For the Exponential distribution
 
 $$ E[X] = 1/\lambda $$
 $$ Var[X] = 1/\lambda^{2} $$
@@ -47,7 +40,7 @@ for (i in 1 : numberSims) {mns <- c(mns, mean(rexp(numberMeans,lambda)))}
 for (i in 1 : numberexps) {exps <- c(exps, rexp(numberMeans,lambda))}
 ```
 
-```{r fig.width=5, fig.height=2.5}
+```{r fig.width=5, fig.height=4,echo=FALSE, message=FALSE}
 expdist <- function(x, lbd = 0) {lbd * exp(-1 * lbd *x)}
 expsdf <- as.data.frame(exps)
 ggplot(data=expsdf, aes(x=exps)) + geom_histogram(aes(y = ..density..), colour="black", fill="white", binwidth = 0.4) +
@@ -57,39 +50,37 @@ ggplot(data=expsdf, aes(x=exps)) + geom_histogram(aes(y = ..density..), colour="
 
 ## Sample Mean versus Theoretical Mean 
 
-Initially we consider comparison between the mean calculated from the data set and what the mean should be according to the CLT. So according to the CLT, for a sufficiently large data set, the sample means should follow a normal distribution with mean $\mu$, for the exponential distribution:
-
-$$ E[\overline{X}] = \mu = 1/\lambda$$
-
-Then we proceed to calculate the mean of dataset
+Initially we consider comparison between the mean calculated from the data set and what the mean should be according to the CLT. So according to the CLT, combining the equations defined on page 1.
 
 ```{r}
 theoretical_mean <- 1/lambda
 theoretical_mean
 sample_mean <- mean(mns)
 sample_mean
+meandeltapct <- (theoretical_mean - sample_mean) * 100 / theoretical_mean
+meandeltapct
 ```
 
-So we the mean calculated in the simulation is very close to the theoretical mean.
+The mean calculated in the simulation is very close to the theoretical mean.
 
 ## Sample Variance versus Theoretical Variance
 
-According to the CLT, the variance for means of an Exponential distribution is given by
-
-$$ V[\overline{X}] = \sigma^{2}/n = (1/\lambda)^{2}/n = 1/\lambda^{2}n = $$
+Again combining the equations defined on page 1.
 
 ```{r}
 theoretical_variance <- 1/(lambda^2*numberMeans)
 theoretical_variance
 sample_variance <- var(mns)
 sample_variance
+variancedeltapct <- (theoretical_variance - sample_variance) * 100 / theoretical_mean
+variancedeltapct
 ```
 
-Again we see that the theoretical mean is very close to that obtained from the simulation.
+Again we see that the theoretical variance is very close to that obtained from the simulation.
 
-## Comparison of sample date with the corresponding Normal Distribution
+## Comparison of sample data with the corresponding Normal Distribution
 
-```{r fig.width=5, fig.height=2.5}
+```{r fig.width=5, fig.height=4, echo=FALSE, message=FALSE}
 mnsdf <- as.data.frame(mns)
 ggplot(data=mnsdf, aes(x=mns)) + geom_histogram(aes(y = ..density..), 
           colour="black", fill="white", binwidth = 0.1) +
@@ -102,8 +93,23 @@ ggplot(data=mnsdf, aes(x=mns)) + geom_histogram(aes(y = ..density..),
           normal density function") + xlab("x")
 ```
 
-This shows that the distribution of the means certainly appears to have a Gaussian form and as we have seen above, the mean and variance obtained from the simulated data are very close to that predicted by the CLT. Now we can see that the distribution is still a little bit skewed, this comes from the combination of the exponential distribution being skewed and the relatively small number of samples used in the simulation. If we up the number of samples then we will see an improved fit.
-```{r fig.width=5, fig.height=2.5}
+This shows that the distribution of the means certainly appears to have a Gaussian form and as we have seen above, the mean and variance obtained from the simulated data are very close to that predicted by the CLT. Now we can see that the distribution is still a little bit skewed, this comes from the combination of the exponential distribution being skewed and the relatively small number of samples used in the simulation. If we up the number of samples then we will see an improved fit. Appendix B shows the results of repeating the experiment with 200 observations used for each simulation. We see that the simulated data is much closer to the theoretical normal distribution and the difference between the theoretical and sample means and variances is also reduced.
+
+# Conclusions
+
+* The theoretical mean and distribution for sample means derived from the Central Limit Theorem agrees with simulated values for the Exponential distribution.
+* Increasing the number of observations used to calculate the mean improves the approximation.
+
+
+\newpage
+
+# Appendix A - ggplot code for Graphs
+
+\newpage
+
+# Appendix B - Investigation of Increasing number of observations used in calculating the mean.
+
+```{r fig.width=5, fig.height=4, echo=FALSE, message=FALSE}
 mns2 <- NULL
 for (i in 1 : numberSims) {mns2 <- c(mns2, mean(rexp(numberMeans2,lambda)))}
 mnsdf2 <- as.data.frame(mns2)
@@ -116,10 +122,22 @@ ggplot(data=mnsdf2, aes(x=mns2)) + geom_histogram(aes(y = ..density..),
           normal density function") + xlab("x")
 ```
 
-This is also reflected in the means ans variance
+This is also reflected in the means and variance
 
 ```{r}
-c(1/lambda,mean(mns2))
-c(1/(lambda^2*numberMeans2), var(mns2))
+theoretical_mean <- 1/lambda
+theoretical_mean
+sample_mean <- mean(mns2)
+sample_mean
+theoretical_variance <- 1/(lambda^2*numberMeans2)
+theoretical_variance
+sample_variance <- var(mns2)
+sample_variance
+
+meandeltapct <- (theoretical_mean - sample_mean) * 100 / theoretical_mean
+meandeltapct
+
+variancedeltapct <- (theoretical_variance - sample_variance) * 100 / theoretical_mean
+variancedeltapct
 ```
 
