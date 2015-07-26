@@ -1,8 +1,9 @@
 ---
 title: "Investigation of the ToothGrowth Dataset"
-author: "Sean Clarke"
-date: "25 July 2015"
+#author: "Sean Clarke"
+#date: "25 July 2015"
 output: pdf_document
+geometry: margin=2cm
 ---
 
 ```{r echo=FALSE, message=FALSE}
@@ -15,29 +16,21 @@ library(ggplot2)
 # Data Exploration
 We load the data from the "ToothGrowth" dataset and have an initial look at it in order to decide what (if any) processing is necessary.
 
-
 ```{r}
 data("ToothGrowth")
 head(ToothGrowth, n=5)
 ```
 
-The help page for the ToothGrowth data set shows us that this dataset contains data about the length of teeth in Guinea Pigs we have three colums. len - the ToothLength, supp - the type of supplement give to the animal (Vitamin C (VC) or Orange Jice (OJ)) and dose - the dose of the supplement given in milligrams.
+The help page for the ToothGrowth data set shows us that this dataset contains data about the length of teeth in Guinea Pigs. There are three colums. len - the ToothLength, supp - the type of supplement given to the animal (Vitamin C (VC) or Orange Jice (OJ)) and dose - the dose of the supplement given in milligrams.
 ```{r}
 str(ToothGrowth)
 ```
 
-We summarise the data, grouping by sup and dose and computing mean lengths in order to allow us to do some high level analysis.
+We summarise the data, grouping by sup and dose and computing mean lengths and use this to plot the mean length of teeth against dose as shown in the boxplots below. We see that there does appear to be a relationship between dose and the length of the teeth. There are too few data points to speculate on the nature of the relationship although naively it initially appears to be somewhat linear.
 
-```{r}
+```{r fig.width=5, fig.height=2.5}
 summary <- group_by(ToothGrowth,supp, dose) %>%
   summarise(MeanLength=mean(len))
-```
-
-
-We initially plot the mean length of teeth against does as shown in the boxplots below. We see that there does appears to be a relationship between does and the length of the teeth. There are too few data points to speculate on the nature of the relationship although naively it initially appears to be somewhat linear.
-
-```{r fig.width=5, fig.height=3}
-
 ggplot(ToothGrowth, aes(y=len,x=factor(dose))) + geom_boxplot() + facet_grid(. ~ supp, scales="free_y") + xlab("Dose (milligrams)") + ylab("Tooth Length ")
 
 ```
@@ -46,10 +39,10 @@ The boxplots also suggest that Orange Juice has a greater effect than Vitamin C 
 
 # Data Manipulation
 
-In order to allow us to do t-tests for differences between different combinations, we now need to reshape the data so that lengths for each Supplement and Dose are in seperate columns (ie we want to go from a narrow to wide format). I'll actually leave it as two seperate dtaframes, one for OJ and one for VC.
+We now need to reshape the data in order to facilitate computing differences (ie we want to go from a narrow to wide format).
 
 ```{r}
-# Using Reshap/dcast would be nice but lack of uniqueness in labels makes it PAINFUL!
+# Using Reshape/dcast would be nice but lack of uniqueness in labels makes it PAINFUL!
 VC <- ToothGrowth[ToothGrowth$sup == "VC",]
 VCbyDose <- as.data.frame(with(VC, split(len, dose)))
 names(VCbyDose) <- gsub("X", "Dose", names(VCbyDose), fixed=TRUE)
@@ -63,17 +56,12 @@ names(OJbyDose) <- gsub("X", "Dose", names(OJbyDose), fixed=TRUE)
 
 ## Assumptions
 
-In this analysis were are making the following assumptions:
 * We are dealing with independent and identically distributed variables.
 * We have a large enough sample set for the Central Limit Theorem to be valid so that the means of our IIDs follow a normal distribution.
 
-## First hypothesis - impact of dose on tooth length
+## Hypothesis -The response of the Guinea Pigs Tooth Length is proportional to the dose of the supplement that they receive.
 
-*Hypothesis* The response of the Guinea Pigs Tooth Length is proportional to the dose of the supplement that they receive.
-
-Firstly lets compare each end of the range of doses for each supplement. We perform Students t tests for the difference in means where we subtract the lower dose from the higher dose. This means that if the 95% confidence interval is entirely above zero then we have a strong indicator that upping the dose increases the length of the teeth.
-
-### Vitamin C Supplement
+We perform Students t tests for the difference in means where we subtract the length for lower dose from that of the higher dose. This means that if the 95% confidence interval is entirely above zero then we have a strong indicator that upping the dose increases the length of the teeth.
 
 ```{r}
 a <- t.test(VCbyDose$Dose1 - VCbyDose$Dose0.5, paired=FALSE, var.equal=FALSE)
@@ -82,9 +70,7 @@ a <- t.test(VCbyDose$Dose2 - VCbyDose$Dose1, paired=FALSE, var.equal=FALSE)
 c(a$conf.int, a$estimate)
 ```
 
-We see that for both tests the bottom of the confidence interval is well above zero which gives us a strong indication that increasing the dose, increases the length of the teeth.
-
-### Orange Juice Supplement
+Whe the supplement used is Vitamin c, we see that for both tests the bottom of the confidence interval is well above zero which gives us a strong indication that increasing the dose, increases the length of the teeth.
 
 ```{r}
 a <- t.test(OJbyDose$Dose1 - OJbyDose$Dose0.5, paired=FALSE, var.equal=FALSE)
@@ -93,13 +79,11 @@ a <- t.test(OJbyDose$Dose2 - OJbyDose$Dose1, paired=FALSE, var.equal=FALSE)
 c(a$conf.int, a$estimate)
 ```
 
-For Orange juice the story is not so clear between the 1ml and 0.5 ml doses things are similar to Vitamin C with the entire confidence interval above zero and the mean of the difference well above 0. However the difference between the 1ml and 2ml doses has  confidence interval that dips under 0 which means that we cannot say that that is a 0.95% probability that the difference is positive. This can also be seen from the box plot - the top of the 1ml box overlaps the bottom of the 2ml one. Having said this, the mean os well above zero and the interval barely dips under zero so the indication still is that increasing dose, increases the teeth length.
+For Orange juice the story is not so clear. Between the 1ml and 0.5 ml doses things are similar to Vitamin C with the entire confidence interval above zero and the mean of the difference well above 0. However the difference between the 1ml and 2ml doses has  confidence interval that dips under 0 which means that we cannot say that that is a 0.95 probability that the difference is positive. This can also be seen from the box plot - the top of the 1ml box overlaps the bottom of the 2ml one. Having said this, the mean os well above zero and the interval barely dips under zero so the indication still is that increasing dose, increases the teeth length.
 
-## Second hypothesis - impact of supplement on tooth length
+## Hypothesis - Orange juice has a greater effect on tooth length than Vitamin C
 
-*Hypothesis* Orange juice has a greater effect on tooth length than Vitamin C
-
-We now want to investigate which of the two supplements has the greater effect. We evaluate further t.tests of the difference of the means of the two supplements for each dosage level - we subtract the Vitamin C value from the Orange Juice one so a positive value indicates increased response from Vitamin C.
+We now want to investigate which of the two supplements has the greater effect. We evaluate further t.tests of the difference of the means of the length for each of the  two supplements for each dosage level - we subtract the Vitamin C value from the Orange Juice one so a positive value indicates increased response from Vitamin C.
 
 ```{r}
 a <- t.test(OJbyDose$Dose0.5 - VCbyDose$Dose0.5, paired=FALSE, var.equal=FALSE)
@@ -115,3 +99,9 @@ We see that for the 0.5ml and 1ml doses the confidence intervals are well above 
 However for the 2ml dose, the confidence interval is pretty much centred around 0 and the mean difference is approximately -0.1 which suggests that in he sample, for the 2ml does we see approximately the same response from both supplements and in fact it suggests very slightly that the stronger response is from Vitamin C.
 
 Further data and analysis is necessary here to investigate whether this is a genuine effect or whether there is either some experimental error or error in the analysis. Special attention should be paid to whether the sample size is large enough to make the Central Limit Theorem valid and the distribution of means to truly be normal.
+
+# Conclusions
+
+* Increasing the dose of both of the supplements generally increases the length of the Guinea Pigs teeth.
+* Orange Juice appears to induce larger changes than Vitamin C when used as a supplement.
+* Further analysis and/or data is needed to aacount for the anomolous nature of the data for 2ml dosage.
