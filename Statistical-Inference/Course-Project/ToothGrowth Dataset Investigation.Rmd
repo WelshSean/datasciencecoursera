@@ -5,7 +5,32 @@ date: "25 July 2015"
 output: pdf_document
 ---
 
+```{r echo=FALSE, message=FALSE}
+# Load libraries
+
+library(dplyr)
+library(ggplot2)
+```
+
+# Data Manipulation
+We load the data from the "ToothGrowth" dataset and have an initial look at it in order to decide what (if any) processing is necessary.
+
+
 ```{r}
-library(datasets)
 data("ToothGrowth")
+head(ToothGrowth, n=15)
+```
+
+The help page for the ToothGrowth data set shows us that this dataset contains data about the length of teeth in Guinea Pigs we have three colums.
+
+* len - the ToothLength [numeric]
+* supp - Type of supplement give to the animal (Vitamin C (VC) or Orange Jice (OJ)) [factor]
+* dos - the dose of the supplement fiven in miligrams [numeric]
+
+We initially plot the mean length of teeth against does as shown in the faceted plot below. We see that there does appears to be a relationship between does and the length of the teeth. There are too few data points to speculate on the nature of the relationship although naively it initially appears to be somewhat linear.
+
+```{r}
+summary <- group_by(ToothGrowth,supp, dose) %>%
+  summarise(MeanLength=mean(len))
+ggplot(data=summary, aes(x=dose, y=MeanLength)) + geom_point() + geom_smooth(method =	"lm") + facet_grid(. ~ supp, scales="free_y")
 ```
