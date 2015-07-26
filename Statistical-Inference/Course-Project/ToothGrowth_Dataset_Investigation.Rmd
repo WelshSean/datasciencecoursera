@@ -59,6 +59,8 @@ names(OJbyDose) <- gsub("X", "Dose", names(OJbyDose), fixed=TRUE)
 * We are dealing with independent and identically distributed variables.
 * We have a large enough sample set for the Central Limit Theorem to be valid so that the means of our IIDs follow a normal distribution.
 
+NB We do **not** assume that both populations have common variance.
+
 ## Hypothesis -The response of the Guinea Pigs Tooth Length is proportional to the dose of the supplement that they receive.
 
 We perform Students t tests for the difference in means where we subtract the length for lower dose from that of the higher dose. This means that if the 95% confidence interval is entirely above zero then we have a strong indicator that upping the dose increases the length of the teeth.
