@@ -18,15 +18,10 @@ We load the data from the "ToothGrowth" dataset and have an initial look at it i
 
 ```{r}
 data("ToothGrowth")
-head(ToothGrowth, n=15)
+head(ToothGrowth, n=5)
 ```
 
-The help page for the ToothGrowth data set shows us that this dataset contains data about the length of teeth in Guinea Pigs we have three colums.
-
-* len - the ToothLength [numeric]
-* supp - Type of supplement give to the animal (Vitamin C (VC) or Orange Jice (OJ)) [factor]
-* dose - the dose of the supplement fiven in milligrams [numeric]
-
+The help page for the ToothGrowth data set shows us that this dataset contains data about the length of teeth in Guinea Pigs we have three colums. len - the ToothLength, supp - the type of supplement give to the animal (Vitamin C (VC) or Orange Jice (OJ)) and dose - the dose of the supplement given in milligrams.
 ```{r}
 str(ToothGrowth)
 ```
@@ -41,7 +36,7 @@ summary <- group_by(ToothGrowth,supp, dose) %>%
 
 We initially plot the mean length of teeth against does as shown in the boxplots below. We see that there does appears to be a relationship between does and the length of the teeth. There are too few data points to speculate on the nature of the relationship although naively it initially appears to be somewhat linear.
 
-```{r}
+```{r fig.width=5, fig.height=3}
 
 ggplot(ToothGrowth, aes(y=len,x=factor(dose))) + geom_boxplot() + facet_grid(. ~ supp, scales="free_y") + xlab("Dose (milligrams)") + ylab("Tooth Length ")
 
@@ -65,6 +60,12 @@ names(OJbyDose) <- gsub("X", "Dose", names(OJbyDose), fixed=TRUE)
 ```
 
 # In-depth analysis
+
+## Assumptions
+
+In this analysis were are making the following assumptions:
+* We are dealing with independent and identically distributed variables.
+* We have a large enough sample set for the Central Limit Theorem to be valid so that the means of our IIDs follow a normal distribution.
 
 ## First hypothesis - impact of dose on tooth length
 
