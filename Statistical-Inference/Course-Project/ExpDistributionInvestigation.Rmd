@@ -45,7 +45,7 @@ expdist <- function(x, lbd = 0) {lbd * exp(-1 * lbd *x)}
 expsdf <- as.data.frame(exps)
 ggplot(data=expsdf, aes(x=exps)) + geom_histogram(aes(y = ..density..), colour="black", fill="white", binwidth = 0.4) +
    stat_function(fun=expdist, arg=list(lbd=lambda ), colour="red" ) +
-  ggtitle("Histogram of 40000 observations of an exponential distribution \n with lamdba=0.2 and the exact PDF (red line)") + xlab("x") + ylab ("f(x,lambda)")
+  ggtitle("Histogram of 40000 observations of an exponential distribution \n with lamdba=0.2 and the exact PDF (red line)") + xlab("x") + ylab ("f(x,lambda)") + theme(plot.title = element_text(size = rel(0.75)))
 ```
 
 ## Sample Mean versus Theoretical Mean 
@@ -80,6 +80,8 @@ Again we see that the theoretical variance is very close to that obtained from t
 
 ## Comparison of sample data with the corresponding Normal Distribution
 
+We now proceed to investigate how close to the theoretically predicted Normal distribution the simulated data is.
+
 ```{r fig.width=5, fig.height=4, echo=FALSE, message=FALSE}
 mnsdf <- as.data.frame(mns)
 ggplot(data=mnsdf, aes(x=mns)) + geom_histogram(aes(y = ..density..), 
@@ -88,16 +90,15 @@ ggplot(data=mnsdf, aes(x=mns)) + geom_histogram(aes(y = ..density..),
   geom_vline(xintercept = mean(mns), colour="blue") +
      stat_function(fun=dnorm, arg=list(mean=1/lambda, 
     sd=sqrt(1/(lambda^2*numberMeans)) ), colour="red" ) + 
-  ggtitle("Histogram of 1000 simulations of the mean of 40 observations from \n
-           an exponential distribution and corresponding theoretical \n
-          normal density function") + xlab("x")
+  ggtitle("Histogram of 1000 simulations of the mean of 40 observations from an exponential distribution 
+          and corresponding theoretical normal density function (lambda=0.2)") + xlab("x") + theme(plot.title = element_text(size = rel(0.6)))
 ```
 
-This shows that the distribution of the means certainly appears to have a Gaussian form and as we have seen above, the mean and variance obtained from the simulated data are very close to that predicted by the CLT. Now we can see that the distribution is still a little bit skewed, this comes from the combination of the exponential distribution being skewed and the relatively small number of samples used in the simulation. If we up the number of samples then we will see an improved fit. Appendix B shows the results of repeating the experiment with 200 observations used for each simulation. We see that the simulated data is much closer to the theoretical normal distribution and the difference between the theoretical and sample means and variances is also reduced.
+This shows that the distribution of the means certainly appears to have a Gaussian form and as we have seen above, the mean and variance obtained from the simulated data are very close to that predicted by the CLT (green(theoretical) and blue(sample) vertical lines). Now we can see that the distribution is still a little bit skewed, this comes from the combination of the exponential distribution being skewed and the relatively small number of samples used in the simulation. If we up the number of samples then we will see an improved fit. Appendix B shows the results of repeating the experiment with 200 observations used for each simulation. We see that the simulated data is much closer to the theoretical normal distribution and the difference between the theoretical and sample means and variances is also reduced.
 
 # Conclusions
 
-* The theoretical mean and distribution for sample means derived from the Central Limit Theorem agrees with simulated values for the Exponential distribution.
+* The theoretical mean and distribution for sample means derived from the Central Limit Theorem agrees with simulated sample mean values for the Exponential distribution.
 * Increasing the number of observations used to calculate the mean improves the approximation.
 
 
@@ -105,9 +106,34 @@ This shows that the distribution of the means certainly appears to have a Gaussi
 
 # Appendix A - ggplot code for Graphs
 
+```{r fig.width=5, fig.height=4, eval=FALSE}
+expdist <- function(x, lbd = 0) {lbd * exp(-1 * lbd *x)}
+expsdf <- as.data.frame(exps)
+ggplot(data=expsdf, aes(x=exps)) + geom_histogram(aes(y = ..density..), 
+        colour="black", fill="white", binwidth = 0.4) +
+   stat_function(fun=expdist, arg=list(lbd=lambda ), colour="red" ) +
+  ggtitle("Histogram of 40000 observations of an exponential distribution \n 
+          with lamdba=0.2 and the exact PDF (red line)") + xlab("x") + ylab ("f(x,lambda)") + theme(plot.title = element_text(size = rel(0.75)))
+```
+
+```{r fig.width=5, fig.height=4, eval=FALSE}
+mnsdf <- as.data.frame(mns)
+ggplot(data=mnsdf, aes(x=mns)) + geom_histogram(aes(y = ..density..), 
+          colour="black", fill="white", binwidth = 0.1) +
+  geom_vline(xintercept = (1/lambda), colour="green") + 
+  geom_vline(xintercept = mean(mns), colour="blue") +
+     stat_function(fun=dnorm, arg=list(mean=1/lambda, 
+    sd=sqrt(1/(lambda^2*numberMeans)) ), colour="red" ) + 
+  ggtitle("Histogram of 1000 simulations of the mean of 40 observations from an exponential distribution 
+          and corresponding theoretical normal density function (lambda=0.2)") +
+  xlab("x") + theme(plot.title = element_text(size = rel(0.6)))
+```
+
 \newpage
 
 # Appendix B - Investigation of Increasing number of observations used in calculating the mean.
+
+*I'm not necessarily expecting any credit for this appendix but I did the analysis, couldnt fit it in and couldnt bear to throw it away!!!! Hopefully at least you wont mark me down for it :-)*
 
 ```{r fig.width=5, fig.height=4, echo=FALSE, message=FALSE}
 mns2 <- NULL
@@ -119,8 +145,11 @@ ggplot(data=mnsdf2, aes(x=mns2)) + geom_histogram(aes(y = ..density..),
                 colour="red" )  + 
   ggtitle("Histogram of 1000 simulations of the mean of 200 observations from \n
            an exponential distribution and corresponding theoretical \n
-          normal density function") + xlab("x")
+          normal density function") + 
+  xlab("x") + theme(plot.title = element_text(size = rel(0.6)))
 ```
+
+
 
 This is also reflected in the means and variance
 
