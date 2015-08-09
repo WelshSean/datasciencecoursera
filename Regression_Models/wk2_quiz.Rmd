@@ -30,5 +30,10 @@ y <- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)
 # Q3
 ```{r}
 # In the mtcars data set, fit a linear regression model of weight (predictor) on mpg #(outcome). Get a 95% confidence interval for the expected mpg at the average weight. #What is the lower endpoint?
+data("mtcars")
+fit <- lm(mpg ~ wt, data=mtcars)
+newdata <- data.frame(wt=mean(mtcars$wt))
+predict(fit, newdata, interval = ("confidence"))[2]
+#
 ```
 
