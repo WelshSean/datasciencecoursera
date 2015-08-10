@@ -96,6 +96,71 @@ y &lt;- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)
 ## Residual standard error: 0.223 on 7 degrees of freedom
 ## Multiple R-squared:  0.4358, Adjusted R-squared:  0.3552 
 ## F-statistic: 5.408 on 1 and 7 DF,  p-value: 0.05296</code></pre>
+<pre class="r"><code> #p-value</code></pre>
+</div>
+<div id="q2" class="section level1">
+<h1>Q2</h1>
+<pre class="r"><code># Consider the previous problem, give the estimate of the residual standard deviation.
+#Residual standard error</code></pre>
+</div>
+<div id="q3" class="section level1">
+<h1>Q3</h1>
+<pre class="r"><code># In the mtcars data set, fit a linear regression model of weight (predictor) on mpg #(outcome). Get a 95% confidence interval for the expected mpg at the average weight. #What is the lower endpoint?
+data(&quot;mtcars&quot;)
+fit &lt;- lm(mpg ~ wt, data=mtcars)
+newdata &lt;- data.frame(wt=mean(mtcars$wt))
+predict(fit, newdata, interval = (&quot;confidence&quot;))[2]</code></pre>
+<pre><code>## [1] 18.99098</code></pre>
+<pre class="r"><code>#</code></pre>
+</div>
+<div id="q4" class="section level1">
+<h1>Q4</h1>
+<p>The estimated expected change in mpg per 1,000 lb increase in weight.</p>
+</div>
+<div id="q5" class="section level1">
+<h1>Q5</h1>
+<pre class="r"><code># Consider again the mtcars data set and a linear regression model with mpg as predicted # by weight (1,000 lbs). A new car is coming weighing 3000 pounds. Construct a 95% # prediction interval for its mpg. What is the upper endpoint?
+data(&quot;mtcars&quot;)
+fit &lt;- lm(mpg ~ wt, data=mtcars)
+newdata &lt;- data.frame(wt=3)
+predict(fit, newdata, interval = (&quot;prediction&quot;))[3]</code></pre>
+<pre><code>## [1] 27.57355</code></pre>
+</div>
+<div id="q6" class="section level1">
+<h1>Q6</h1>
+<pre class="r"><code># Consider again the mtcars data set and a linear regression model with mpg as predicted # by weight (in 1,000 lbs). A “short” ton is defined as 2,000 lbs. Construct a 95% #    # confidence interval for the expected change in mpg per 1 short ton increase in weight. # Give the lower endpoint.
+#
+# unit change in x  is givn by Beta1, therefore interval given by 2 * unit interval
+data(&quot;mtcars&quot;)
+fit &lt;- lm(mpg ~ wt, data=mtcars)
+sumCoef&lt;-summary(fit)$coefficients
+2 * (sumCoef[2,1]+c(-1,1)*qt(.975,df=fit$df)*sumCoef[2,2])</code></pre>
+<pre><code>## [1] -12.97262  -8.40527</code></pre>
+</div>
+<div id="q7" class="section level1">
+<h1>Q7</h1>
+<p>If my X from a linear regression is measured in centimeters and I convert it to meters what would happen to the slope coefficient?</p>
+<p>It would get multiplied by 100</p>
+</div>
+<div id="q8" class="section level1">
+<h1>Q8</h1>
+<p>I have an outcome, Y, and a predictor, X and fit a linear regression model with Y=β0+β1X+ϵ to obtain β^0 and β^1. What would be the consequence to the subsequent slope and intercept if I were to refit the model with a new regressor, X+c for some constant, c?</p>
+<p>The new intercept would be β<sup>0−cβ</sup>1</p>
+</div>
+<div id="q9" class="section level1">
+<h1>Q9</h1>
+</div>
+<div id="refer-back-to-the-mtcars-data-set-with-mpg-as-an-outcome-and-weight-wt-as-the-predictor.-about-what-is-the-ratio-of-the-the-sum-of-the-squared-errors-ni1yiyi2-when-comparing-a-model-with-just-an-intercept-denominator-to-the-model-with-the-intercept-and-slope-numerator" class="section level1">
+<h1>Refer back to the mtcars data set with mpg as an outcome and weight (wt) as the # predictor. About what is the ratio of the the sum of the squared errors, # ∑ni=1(Yi−Y^i)2 when comparing a model with just an intercept (denominator) to the # model with the intercept and slope (numerator)?</h1>
+<pre class="r"><code>nograd &lt;- sum(resid(lm(mpg ~ 1, data = mtcars)))
+grad &lt;- sum(resid(lm(mpg ~ wt, data = mtcars)))
+grad/nograd</code></pre>
+<pre><code>## [1] 0.2731481</code></pre>
+</div>
+<div id="q10" class="section level1">
+<h1>Q10</h1>
+<p>Do the residuals always have to sum to 0 in linear regression?</p>
+<p>If an intercept is included, then they will sum to 0.</p>
 </div>
 
 

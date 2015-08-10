@@ -37,3 +37,58 @@ predict(fit, newdata, interval = ("confidence"))[2]
 #
 ```
 
+# Q4
+
+The estimated expected change in mpg per 1,000 lb increase in weight.
+
+# Q5
+```{r}
+# Consider again the mtcars data set and a linear regression model with mpg as predicted # by weight (1,000 lbs). A new car is coming weighing 3000 pounds. Construct a 95% # prediction interval for its mpg. What is the upper endpoint?
+data("mtcars")
+fit <- lm(mpg ~ wt, data=mtcars)
+newdata <- data.frame(wt=3)
+predict(fit, newdata, interval = ("prediction"))[3]
+
+```
+
+# Q6
+
+```{r}
+# Consider again the mtcars data set and a linear regression model with mpg as predicted # by weight (in 1,000 lbs). A “short” ton is defined as 2,000 lbs. Construct a 95% #    # confidence interval for the expected change in mpg per 1 short ton increase in weight. # Give the lower endpoint.
+#
+# unit change in x  is givn by Beta1, therefore interval given by 2 * unit interval
+data("mtcars")
+fit <- lm(mpg ~ wt, data=mtcars)
+sumCoef<-summary(fit)$coefficients
+2 * (sumCoef[2,1]+c(-1,1)*qt(.975,df=fit$df)*sumCoef[2,2])
+```
+
+# Q7
+
+If my X from a linear regression is measured in centimeters and I convert it to meters what would happen to the slope coefficient?
+
+It would get multiplied by 100
+
+# Q8
+
+I have an outcome, Y, and a predictor, X and fit a linear regression model with Y=β0+β1X+ϵ to obtain β^0 and β^1. What would be the consequence to the subsequent slope and intercept if I were to refit the model with a new regressor, X+c for some constant, c?
+
+
+The new intercept would be β^0−cβ^1
+
+
+# Q9
+
+# Refer back to the mtcars data set with mpg as an outcome and weight (wt) as the       # predictor. About what is the ratio of the the sum of the squared errors,              # ∑ni=1(Yi−Y^i)2 when comparing a model with just an intercept (denominator) to the      # model with the intercept and slope (numerator)?
+```{r}
+nograd <- sum(resid(lm(mpg ~ 1, data = mtcars)))
+grad <- sum(resid(lm(mpg ~ wt, data = mtcars)))
+grad/nograd
+```
+
+# Q10
+
+Do the residuals always have to sum to 0 in linear regression?
+
+If an intercept is included, then they will sum to 0.
+
