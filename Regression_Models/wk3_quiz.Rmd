@@ -1,0 +1,18 @@
+---
+title: "Week 3 Quiz"
+author: "Sean Clarke"
+date: "15 August 2015"
+output: html_document
+---
+
+# Q1
+Consider the mtcars data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as confounder. Give the adjusted estimate for the expected change in mpg comparing 8 cylinders to 4.
+
+```{r}
+data("mtcars")
+library(dplyr)
+#mtcars <- subset(mtcars, cyl %in% c(4, 8))
+mtcars <- mutate(mtcars, cyl = 1 * (cyl == 4)) # create binary variable
+fit <- lm(mpg ~ cyl+wt, mtcars )
+fit$coefficients
+```
