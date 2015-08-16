@@ -72,7 +72,38 @@ img {
 <h1>Q1</h1>
 <p>Consider the mtcars data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as confounder. Give the adjusted estimate for the expected change in mpg comparing 8 cylinders to 4.</p>
 <pre class="r"><code>data(&quot;mtcars&quot;)
-fit &lt;- lm(mpg ~ wt+cyl, mtcars )</code></pre>
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>mtcars &lt;- mutate(mtcars, cyl = factor(cyl)) # convert cyl to a factor
+summary(lm(mpg ~ cyl+wt, data = mtcars))$coef</code></pre>
+<pre><code>##              Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept) 33.990794  1.8877934 18.005569 6.257246e-17
+## cyl6        -4.255582  1.3860728 -3.070244 4.717834e-03
+## cyl8        -6.070860  1.6522878 -3.674214 9.991893e-04
+## wt          -3.205613  0.7538957 -4.252065 2.130435e-04</code></pre>
+<p><span class="math">\(\beta_{0} = cyl4, \beta_{1} = cyl6 and \beta_{2} = cyl8\)</span></p>
+<p>Therefore <span class="math">\(\beta_{1} compares 4 cylinders to 6\)</span></p>
+<p>4.256</p>
+</div>
+<div id="q2" class="section level1">
+<h1>Q2</h1>
+<p>Consider the mtcars data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as a possible confounding variable. Compare the effect of 8 versus 4 cylinders on mpg for the adjusted and unadjusted by weight models. Here, adjusted means including the weight variable as a term in the regression model and unadjusted means the model without weight included. What can be said about the effect comparing 8 and 4 cylinders after looking at models with and without weight included?.</p>
+<p>Compare the results of including wt in the regression</p>
+<pre class="r"><code>summary(lm(mpg ~ cyl, data = mtcars))$coef</code></pre>
+<pre><code>##               Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)  26.663636  0.9718008 27.437347 2.688358e-22
+## cyl6         -6.920779  1.5583482 -4.441099 1.194696e-04
+## cyl8        -11.563636  1.2986235 -8.904534 8.568209e-10</code></pre>
+<p>$<em>{adjusted} = -4.26 $</em>{unadjusted} = -6.9</p>
 </div>
 
 
