@@ -1,0 +1,48 @@
+---
+title: "Automatic or Manual Transmissions - Which is best?"
+author: "Sean Clarke"
+date: "17 August 2015"
+output: html_document
+---
+
+```{r cache = F, echo = F, message = F, warning = F, tidy = F, results='hide'}
+# Setup data and libraries
+data("mtcars")
+library(ggplot2)
+library(GGally)
+library(dplyr)
+
+mtcars <- mutate(mtcars, cyl = factor(cyl)) # convert cyl to a factor
+mtcars <- mutate(mtcars, vs = factor(vs)) # convert cyl to a factor
+mtcars <- mutate(mtcars, am = factor(am)) # convert cyl to a factor
+mtcars <- mutate(mtcars, gear = factor(gear)) # convert cyl to a factor
+```
+
+## Exploratory Data Analysis
+
+As a means of gathering as much information as possible in a dense fashion for our exploratory analysis, we make a ggpairs plot (see plot 1). 
+
+The boxplots for the categorical variables suggest that the fuel consumption is strongly dependent on the number of cylinders, vs (V vs Straight engine) and the type of transmission. There is no clear dependency on fuel consumption and the number of gears.
+
+From the calculated correlation values for the continuous variables, we see some positive correlation between fuel consumption and the rear axel ratio and 1/4 mile time. We see strong negative correlation between fuel consumption and Displacement, Horsepower, and weight. There is a weaker negative correlation between fuel consumption and the number of carburetors.
+
+Interestingly (and maybe not surprisingly) fuel consumtions appears to depend in almost all the other factors!
+
+# Model Selection
+
+In order to find the optimal fit, we proceed to fit nested models, we will then proceed to evaluate an ANOVA for these fits and use the output of the F-Test to identify the necessary terms.
+
+```{r}
+fit1 <- lm(mpg ~ disp , mtcars)
+#fit1 <- lm(mpg ~ ., mtcars)
+```
+
+# Appendix - Plots
+
+```{r cache=TRUE, fig.width=10, fig.height=8, echo = F, message = F, warning = F, tidy = F, results='hide'}
+require(GGally); require(ggplot2)
+g = ggpairs(mtcars, lower = list(continuous = "smooth"),params = c(method = "loess"), title="Plot 1 - ggpairs plot for mtcars dataset to investigate dependencies")
+g
+```
+
+
