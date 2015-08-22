@@ -30,47 +30,30 @@ It is well known that introducing multiple terms that have strong dependencies b
 
 To this end, we propose to choose the variables that we include in our model based on how strongly they are correlated with mpg and discard variables from the resulting set based on strong mutual correlation. The exception to this is am which we include as it is the main motivation for this study! This means that we initially propose to include am, wt and hp in the fit. 
 
- 
-
-From the calculated correlation values for the continuous variables, we see some positive correlation between fuel consumption and the rear axel ratio and 1/4 mile time. We see strong negative correlation between fuel consumption and Displacement, Horsepower, and weight. There is a weaker negative correlation between fuel consumption and the number of carburetors.
-
-Interestingly (and maybe not surprisingly) fuel consumtions appears to depend in almost all the other factors!
 
 # Model Selection
 
-In order to find the optimal fit, we proceed to fit nested models, we will then proceed to evaluate an ANOVA for these fits and use the output of the F-Test to identify the necessary terms.
+In order to understand how effective the propsoed choice of variables to include in the fit is, we initially fit a model mpg ~ am and then build a series of nested models, initially including the variables that we intend to include and then those that we propose to leave out based on the correlation analysys that we did in the previous section. These models when then be fed into and Anova analysis in order to enable us to understand the impact of including each team.
 
-```{r}
-fit1 <- lm(mpg ~  am , mtcars)
-fit2 <- lm(mpg ~ am + wt, mtcars)
-fit3 <- lm(mpg ~ am + wt + disp, mtcars)
-fit4 <- lm(mpg ~ am + wt + disp + cyl, mtcars)
-fit5 <- lm(mpg ~ am + wt + disp + cyl + drat, mtcars)
-fit6 <- lm(mpg ~ am + wt + disp + cyl + drat + qsec, mtcars)
-fit7 <- lm(mpg ~ am + wt + disp + cyl + drat + qsec + vs, mtcars)
-fit8 <- lm(mpg ~ am + wt + disp + cyl + drat + qsec + vs + gear, mtcars)
-fit9 <- lm(mpg ~ am + wt + disp + cyl + drat + qsec + vs + gear + carb, mtcars)
-fit10 <- lm(mpg ~ am + wt + disp + cyl + drat + qsec + vs + gear + carb + hp, mtcars)
+```{r echo = F, message = F, warning = F}
+fit1  <- lm(mpg ~  am , mtcars)
+fit2  <- lm(mpg ~ am + wt, mtcars)
+fit3  <- lm(mpg ~ am + wt + hp, mtcars)
+fit4  <- lm(mpg ~ am + wt + hp + disp, mtcars)
+fit5  <- lm(mpg ~ am + wt + hp + disp + cyl , mtcars)
+fit6  <- lm(mpg ~ am + wt + hp + disp + cyl + drat, mtcars)
+fit7  <- lm(mpg ~ am + wt + hp + disp + cyl + drat + qsec, mtcars)
+fit8  <- lm(mpg ~ am + wt + hp + disp + cyl + drat + qsec + vs, mtcars)
+fit9  <- lm(mpg ~ am + wt + hp + disp + cyl + drat + qsec + vs + gear, mtcars)
+fit10 <- lm(mpg ~ am + wt + hp + disp + cyl + drat + qsec + vs + gear + carb, mtcars)
 anova(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10)
 ```
 
-```{r}
-fit1 <- lm(mpg ~  am , mtcars)
-fit2 <- lm(mpg ~  am + wt + hp , mtcars)
-fit3 <- lm(mpg ~  am + wt + hp + cyl + disp , mtcars)
-fit4  <- lm(mpg ~  am + wt + hp + cyl + disp + gear + carb , mtcars)
-fit5  <- lm(mpg ~  am + wt + hp + cyl + disp + gear + carb + vs + qsec , mtcars)
-anova(fit1, fit2, fit3, fit4, fit5 )
-```
+We clearly see that adding wt and hp into the model results in a large change in the Residual Sum of Squares(RSS), large F values and p values that are clearly insigficant which indicates that these terms definitely improve the fit. When we add the other terms into the fit, the RSS changes are much smaller and the F-values and p values dont suggest that we should include these terms.
 
-```{r}
-fit1 <- lm(mpg ~  am , mtcars)
-fit2 <- lm(mpg ~  am + wt + hp , mtcars)
-fit3 <- lm(mpg ~  am + wt + hp + cyl + disp , mtcars)
-fit4  <- lm(mpg ~  am + wt + hp + cyl + disp + gear + carb , mtcars)
-fit5  <- lm(mpg ~  am + wt + hp + cyl + disp + gear + carb + vs + qsec , mtcars)
-anova(fit1, fit2, fit3, fit4, fit5 )
-```
+The one possible exception to this is when we add in cyl, however even the effect of including cyl is four times as small as adding the proposed terms so we do not include it. We will further analyse the quality of our fit to validate this choice
+
+When we add the rest of the terms in, the im
 
 # Appendix - Plots
 
@@ -79,4 +62,10 @@ library(corrplot)
 M <- cor(mtsaved)
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 corrplot(M, type = "upper", addCoef.col = "black", method = "shade", shade.col = NA, tl.col = "black", tl.srt = 45, col=col(200),  order = "AOE", title = "Figure 1: Correlation matrix for all the variables in the mtcars dataset")
+```
+
+
+```{r, echo = F, message = F, warning = F, tidy = F, results='hide'}
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(fit3)
 ```
