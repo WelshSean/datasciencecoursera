@@ -2,7 +2,7 @@
 title: "Automatic or Manual Transmissions - Which is best?"
 author: "Sean Clarke"
 date: "17 August 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r cache = F, echo = F, message = F, warning = F, tidy = F, results='hide'}
@@ -11,7 +11,7 @@ data("mtcars")
 library(ggplot2)
 library(GGally)
 library(dplyr)
-
+mtsaved <- mtcars # Save a copy of mtcars with no conversion to factors - needed by cor
 mtcars <- mutate(mtcars, cyl = factor(cyl)) # convert cyl to a factor
 mtcars <- mutate(mtcars, vs = factor(vs)) # convert cyl to a factor
 mtcars <- mutate(mtcars, am = factor(am)) # convert cyl to a factor
@@ -20,9 +20,17 @@ mtcars <- mutate(mtcars, gear = factor(gear)) # convert cyl to a factor
 
 ## Exploratory Data Analysis
 
-As a means of gathering as much information as possible in a dense fashion for our exploratory analysis, we make a ggpairs plot (see plot 1). 
+In order to understand the relationships between the different variables in the dataset a correlation matrix was evaluated - the results are summarise in figure one. If we define the threshold for significance to be ±0.8 after rounding the figures to one decimal place, we see the following:
 
-The boxplots for the categorical variables suggest that the fuel consumption is strongly dependent on the number of cylinders, vs (V vs Straight engine) and the type of transmission. There is no clear dependency on fuel consumption and the number of gears.
+* mpg is strongly correlated with wt, disp, cyl and hp
+* wt is strongly correlated with disp and cyl
+* hp is strongly correlated with disp, cyl and carb
+
+It is well known that introducing multiple terms that have strong dependencies between them does not improve the quality of the fit. Additionally in this piece of work we are not looking at making predictions but rather in understanding the effect that an automated Vs Manual gearbox makes, so we favour a parsimonious model over an opaque one even if that is at the cost of this accuracy.
+
+To this end, we propose to choose the variables that we include in our model based on how strongly they are correlated with mpg and discard variables from the resulting set based on strong mutual correlation. The exception to this is am which we include as it is the main motivation for this study! This means that we initially propose to include am, wt and hp in the fit. 
+
+ 
 
 From the calculated correlation values for the continuous variables, we see some positive correlation between fuel consumption and the rear axel ratio and 1/4 mile time. We see strong negative correlation between fuel consumption and Displacement, Horsepower, and weight. There is a weaker negative correlation between fuel consumption and the number of carburetors.
 
@@ -66,10 +74,9 @@ anova(fit1, fit2, fit3, fit4, fit5 )
 
 # Appendix - Plots
 
-```{r cache=TRUE, fig.width=10, fig.height=8, echo = F, message = F, warning = F, tidy = F, results='hide'}
-require(GGally); require(ggplot2)
-g = ggpairs(mtcars, lower = list(continuous = "smooth"),params = c(method = "loess"), title="Plot 1 - ggpairs plot for mtcars dataset to investigate dependencies")
-g
+```{r, fig.width=10, fig.height=8,echo = F, message = F, warning = F, tidy = F, results='hide'}
+library(corrplot)
+M <- cor(mtsaved)
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(M, type = "upper", addCoef.col = "black", method = "shade", shade.col = NA, tl.col = "black", tl.srt = 45, col=col(200),  order = "AOE", title = "Figure 1: Correlation matrix for all the variables in the mtcars dataset")
 ```
-
-
