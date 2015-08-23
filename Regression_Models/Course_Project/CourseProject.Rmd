@@ -59,7 +59,9 @@ The one possible exception to this is when we add in cyl, however even the effec
 
 ## Qualitative analysys
 
-The values of the mean of mpg for automatic (`r round(mean(mtcars[ mtcars$am == 0, ]$mpg), digits=1)`) and manual (`r round(mean(mtcars[ mtcars$am == 1, ]$mpg), digits=1)`) cars suggests that cars with a manual transmission have a `r round((mean(mtcars[ mtcars$am == 1, ]$mpg) - mean(mtcars[ mtcars$am == 0, ]$mpg))/mean(mtcars[ mtcars$am == 0, ]$mpg) *100, digits=1)`% higher mpg value than automatic vehicles.
+The values of the mean of mpg for automatic (`r round(mean(mtcars[ mtcars$am == 0, ]$mpg), digits=1)`) and manual (`r round(mean(mtcars[ mtcars$am == 1, ]$mpg), digits=1)`) cars suggests that cars with a manual transmission have a `r round((mean(mtcars[ mtcars$am == 1, ]$mpg) - mean(mtcars[ mtcars$am == 0, ]$mpg))/mean(mtcars[ mtcars$am == 0, ]$mpg) *100, digits=1)`% higher mpg value than automatic vehicles. The Boxplot shown in figure 4 also backs up this assertion - the mean value for mpg for manual vehicles is higher than the top of the third quartile for automatic vehicles.
+
+## Quantitative Analysis
 
 
 # Appendix - Plots
@@ -88,9 +90,10 @@ corrplot(M, type = "upper", addCoef.col = "black", method = "shade", shade.col =
 autoplot(fit3, data=mtcars, colour='am', which = 1:6, ncol = 2) 
 ```
 
-## Figure 3: Boxplot showing how mpg depends on am in the mtcars dataset
+## Figure 4: Boxplot showing how mpg depends on am in the mtcars dataset
 
 ```{r, fig.width=12, fig.height=10, echo = F, message = F, warning = F, tidy = F, results='hide'}
-boxplot(mpg~am,data=mtcars, main="Car Milage Data", 
-  	xlab="Number of Cylinders", ylab="Miles Per Gallon")
+qplot(am, mpg, data=mtcars, geom=c("boxplot", "point"), 
+   fill=am, main="Mileage by Transmission Type (0=automatic, 1=manual)",
+   xlab="", ylab="Miles per Gallon")
 ```
