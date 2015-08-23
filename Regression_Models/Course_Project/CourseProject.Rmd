@@ -35,7 +35,7 @@ It is well known that introducing multiple terms that have strong dependencies b
 
 To this end, we propose to choose the variables that we include in our model based on how strongly they are correlated with mpg and discard variables from the resulting set based on strong mutual correlation. The exception to this is am which we include as it is the main motivation for this study! This means that we initially propose to include am, wt and hp in the fit. 
 
-In order to understand how effective the propsoed choice of variables to include in the fit is, we initially fit a model mpg ~ am and then build a series of nested models, initially including the variables that we intend to include and then those that we propose to leave out based on the correlation analysys that we did in the previous section. These models when then be fed into and Anova analysis in order to enable us to understand the impact of including each team.
+In order to understand how effective the proposed choice of variables to include in the fit is, we initially fit a model mpg ~ am and then build a series of nested models, initially including the variables that we intend to include and then those that we propose to leave out based on the correlation analysys that we did in the previous section. These models when then be fed into and Anova analysis in order to enable us to understand the impact of including each team.
 
 ```{r echo = F, message = F, warning = F}
 fit1  <- lm(mpg ~  am , mtcars)
@@ -51,9 +51,11 @@ fit10 <- lm(mpg ~ am + wt + hp + disp + cyl + drat + qsec + vs + gear + carb, mt
 anova(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10)
 ```
 
-We clearly see that adding wt and hp into the model results in a large change in the Residual Sum of Squares(RSS), large F values and p values that are clearly insigficant which indicates that these terms definitely improve the fit. When we add the other terms into the fit, the RSS changes are much smaller and the F-values and p values dont suggest that we should include these terms.
+We clearly see that adding wt and hp into the model results in a large change in the Residual Sum of Squares(RSS), large F values and p values that are clearly insigficant which indicates that these terms improve the fit. When we add the other terms into the fit, the RSS changes are much smaller and the F-values and p values dont suggest that we should include these terms.
 
-The one possible exception to this is when we add in cyl, however even the effect of including cyl is four times as small as adding the proposed terms so we do not include it. We will further analyse the quality of our fit to validate this choice
+The one possible exception to this is when we add in cyl, however even the effect of including cyl is four times as small as adding the proposed terms so we do not include it. We will further analyse the quality of our fit to validate this choice.
+
+Figure 3 shows the standard diagnostic plots for the lm function. The normal Q-Q plot shows that the assumption that the errors in the data are normal is a pretty good one. The residuals versus fitted plot shows that the residuals are pretty well distributed either side of 0 and there is no abvious pattern in them which is a good sign. The scale-location plot shows a potential problem in that it is tending to rise with increasing X which is a sign of heteroscedasticity. However there are some points highlighted that have a large Cook's distance that might be causing this - these points would clearly bear some further investigation.
 
 # Results Analysis
 
@@ -63,6 +65,20 @@ The values of the mean of mpg for automatic (`r round(mean(mtcars[ mtcars$am == 
 
 ## Quantitative Analysis
 
+The curve that we have fitted is as follows
+
+$$ mpg_{i} = \beta_{0} + X_{i,am}\beta_{am} + X_{i,wt}\beta_{wt} + X_{i,hp}\beta_{hp}$$
+
+where each $X_{i,am}$ is binary and equal to 0 if the relevant vehicle is automatic and 1 if it is manual. It can be shown that if we control for the other varaibles and consider $E[Y_{i}]$ for the cases where $X_{i,am}$ is equal to 1 and 0, then $\beta_{am}$ can be thought of as the increase in the mean comparing those in the group (vehicles with Manual transmission) to those outside of it (vehicles with automatic transmission). We can evaluate a confidence interval to attempt to apply some statistical inference to this idea
+
+```{r}
+sumCoef<-summary(fit3)$coefficients
+sumCoef[2,1]+c(-1,1)*qt(.975,df=fit3$df)*sumCoef[2,2]
+```
+
+Therefore, the fit shows us that the mean mpg for vehicles with manual transmission is wihtin 95% certainty, -0.74 to 4.9 miles/gallon higher than for this with automatic transmission. Interestingly the 95% Confidence Interval includes the possibility of the vehicle being automatic making it more efficient - this isnt as counter-intuitive as it might seem as there is considerable overlap in the box plots in figure 4.
+
+Its worth also noting that in this case, you cant just "go from automatic to manual" or vice-versa, this would mean changing physical components which would undoubtedly affect the validity of the model!
 
 # Appendix - Plots
 
