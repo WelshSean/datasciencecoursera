@@ -1,8 +1,7 @@
 ---
-title: "Automatic or Manual Transmissions - Which is best?"
-author: "Sean Clarke"
-date: "17 August 2015"
+title: "Investigation into Fuel Efficiency in Cars"
 output: pdf_document
+geometry: margin=1cm
 ---
 
 ```{r cache = F, echo = F, message = F, warning = F, tidy = F, results='hide'}
@@ -18,24 +17,23 @@ mtcars <- mutate(mtcars, vs = factor(vs)) # convert cyl to a factor
 mtcars <- mutate(mtcars, am = factor(am)) # convert cyl to a factor
 mtcars <- mutate(mtcars, gear = factor(gear)) # convert cyl to a factor
 ```
+# Executive summary
+
+A statistical analysis was carried out to investigate how fuel consumption depends on a number of variables - the key question was whether the data showed that cars with manual transmissions are more efficient that those with automatic ones. The analysis showed that a number of other variables were also important, namely the weight of the vehicle and the power of the engine. It was suspected that several of the other variables did not need to be included as they implicitly depended on these variables, an assumption which the analysis bore out. The conclusion of the analysis is that in general manual vehicles tend to be more efficient than automatic ones, but the other factors mentioned are also important. For example a very light automatic vehicle with a less powerful engine is likely to be more efficient than a very heavy one with a very powerful engine.
 
 # Exploratory Data Analysis
 
-In order to understand the relationships between the different variables in the dataset a matrix of scatterplots was created as can be seen in Figure 1. This provided us with a means of getting a feel for how the variables depend on one another. As a result of this analysis and looking at the help page for the mtcars dataset it is clear that cyl (number of cylinders), vs (engine setup), am (automatic or manual gearbox) and gear (number of forward gears) are categorical variables and so they were converted to factors. **Note: For the variable am, 0 indicates automatic transmission, 1 indicates manual transmission.**
+In order to understand the relationships between the different variables in the dataset, a matrix of scatterplots was created as can be seen in Figure 1. This provided us with a means of getting a feel for how the variables depend on one another. As a result of this analysis and looking at the help page for the mtcars dataset it is clear that cyl (number of cylinders), vs (engine setup), am (automatic or manual gearbox) and gear (number of forward gears) are categorical variables and so they were converted to factors. **Note: For the variable am, 0 indicates automatic transmission, 1 indicates manual transmission.**
 
-Additionlly, a correlation matrix was evaluated - the results are summarised in figure 2. If we define the threshold for significance to be ±0.8 after rounding the figures to one decimal place, we see the following:
-
-* mpg is strongly correlated with wt, disp, cyl and hp
-* wt is strongly correlated with disp and cyl
-* hp is strongly correlated with disp, cyl and carb
+Additionlly, a correlation matrix was evaluated - the results are summarised in figure 2. If we define the threshold for significance to be ±0.8 after rounding the figures to one decimal place, we see that mpg is strongly correlated with wt, disp, cyl and hp. In turn, wt is strongly correlated with disp and cyl and hp is strongly correlated with disp, cyl and carb.
 
 # Model Selection
 
-It is well known that introducing multiple terms that have strong dependencies between them does not improve the quality of the fit. Additionally in this piece of work we are not looking at making predictions but rather in understanding the effect that an automated Vs Manual gearbox makes, so we favour a parsimonious model over an opaque one even if that is at the cost of this accuracy.
+It is well known that introducing multiple terms that have strong dependencies between them does not improve the quality of the fit. Additionally in this piece of work we are not looking at making predictions but rather in understanding the effect that an automated versus Manual gearbox makes, so we favour a parsimonious model over a more opaque one even if that is at the cost of some accuracy.
 
 To this end, we propose to choose the variables that we include in our model based on how strongly they are correlated with mpg and discard variables from the resulting set based on strong mutual correlation. The exception to this is am which we include as it is the main motivation for this study! This means that we initially propose to include am, wt and hp in the fit. 
 
-In order to understand how effective the proposed choice of variables to include in the fit is, we initially fit a model mpg ~ am and then build a series of nested models, initially including the variables that we intend to include and then those that we propose to leave out based on the correlation analysys that we did in the previous section. These models when then be fed into and Anova analysis in order to enable us to understand the impact of including each team.
+In order to understand how effective the proposed choice of variables is, we initially fit a model mpg ~ am and then build a series of nested models, initially including the variables that we intend to include and then those that we propose to leave out. These models are then compared using an  Anova analysis.
 
 ```{r echo = F, message = F, warning = F}
 fit1  <- lm(mpg ~  am , mtcars)
@@ -51,11 +49,11 @@ fit10 <- lm(mpg ~ am + wt + hp + disp + cyl + drat + qsec + vs + gear + carb, mt
 anova(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10)
 ```
 
-We clearly see that adding wt and hp into the model results in a large change in the Residual Sum of Squares(RSS), large F values and p values that are clearly insigficant which indicates that these terms improve the fit. When we add the other terms into the fit, the RSS changes are much smaller and the F-values and p values dont suggest that we should include these terms.
+We clearly see that adding wt and hp into the model results in a large change in the Residual Sum of Squares(RSS), large F values and p values that are clearly insigficant which indicates that these terms improve the fit. When we add the other terms into the fit, the RSS changes are much smaller and the F-values and p values are much less supportive of including these terms.
 
-The one possible exception to this is when we add in cyl, however even the effect of including cyl is four times as small as adding the proposed terms so we do not include it. We will further analyse the quality of our fit to validate this choice.
+The one possible exception to the above statement is when we add in cyl, however even the effect of including cyl is four times as small as adding the proposed terms so we do not include it in the interests of parsimony. 
 
-Figure 3 shows the standard diagnostic plots for the lm function. The normal Q-Q plot shows that the assumption that the errors in the data are normal is a pretty good one. The residuals versus fitted plot shows that the residuals are pretty well distributed either side of 0 and there is no abvious pattern in them which is a good sign. The scale-location plot shows a potential problem in that it is tending to rise with increasing X which is a sign of heteroscedasticity. However there are some points highlighted that have a large Cook's distance that might be causing this - these points would clearly bear some further investigation.
+Figure 3 shows the standard diagnostic plots for the lm function. The normal Q-Q plot shows that the assumption that the errors in the data are normal is a pretty good one. The residuals versus fitted plot shows that the residuals are pretty well distributed either side of 0 and there is no obvious pattern in them which is a good sign. The scale-location plot shows a potential problem in that it is tending to rise with increasing X which is a sign of heteroscedasticity. However there are some points highlighted that have a large Cook's distance that might be causing this - these points would clearly bear some further investigation.
 
 # Results Analysis
 
@@ -69,47 +67,65 @@ The curve that we have fitted is as follows
 
 $$ mpg_{i} = \beta_{0} + X_{i,am}\beta_{am} + X_{i,wt}\beta_{wt} + X_{i,hp}\beta_{hp}$$
 
-where each $X_{i,am}$ is binary and equal to 0 if the relevant vehicle is automatic and 1 if it is manual. It can be shown that if we control for the other varaibles and consider $E[Y_{i}]$ for the cases where $X_{i,am}$ is equal to 1 and 0, then $\beta_{am}$ can be thought of as the increase in the mean comparing those in the group (vehicles with Manual transmission) to those outside of it (vehicles with automatic transmission). We can evaluate a confidence interval to attempt to apply some statistical inference to this idea
+where each $X_{i,am}$ is binary and equal to 0 (as am is categorical) if the relevant vehicle is automatic and 1 if it is manual. It can be shown that if we control for the other varaibles and consider $E[Y_{i}]$ for the cases where $X_{i,am}$ is equal to 1 and 0, then $\beta_{am}$ can be thought of as the increase in the mean comparing those in the group (vehicles with Manual transmission) to those outside of it. We can evaluate a confidence interval to attempt to apply some statistical inference to this idea
 
 ```{r}
 sumCoef<-summary(fit3)$coefficients
 sumCoef[2,1]+c(-1,1)*qt(.975,df=fit3$df)*sumCoef[2,2]
 ```
 
-Therefore, the fit shows us that the mean mpg for vehicles with manual transmission is wihtin 95% certainty, -0.74 to 4.9 miles/gallon higher than for this with automatic transmission. Interestingly the 95% Confidence Interval includes the possibility of the vehicle being automatic making it more efficient - this isnt as counter-intuitive as it might seem as there is considerable overlap in the box plots in figure 4.
+Therefore, the fit shows us that the mean mpg for vehicles with manual transmission is within 95% certainty, -0.74 to 4.9 miles/gallon higher than for this with automatic transmission. Interestingly the 95% Confidence Interval includes the possibility of the vehicle being automatic making it more efficient - this isnt as counter-intuitive as it might seem as there is considerable overlap in the box plots in figure 4.
 
-Its worth also noting that in this case, you cant just "go from automatic to manual" or vice-versa, this would mean changing physical components which would undoubtedly affect the validity of the model!
+Its worth also noting that this element of the discussion is slightly contrived, as you cant just "go from automatic to manual" or vice-versa, this would mean changing physical components which would undoubtedly affect the validity of the model!
+
+# Conclusions
+
+* Manual vehicles tend to be more efficient that automatic ones. However other factors also govern efficiency and these also need to be taken into account.
+* The fuel efficiency is inversely proportial to the weight of the vehicle.
+* The fuel efficiency is inversely proportional to the power of the vehicles engine.
+
+\newpage
 
 # Appendix - Plots
 
-## Figure1: Scatterplot matrix for all the variables in the mtcars dataset"
+## Figure1: Scatterplot matrix for all the non-categorical variables in the mtcars dataset
 
-```{r, fig.width=12, fig.height=10,echo = F, message = F, warning = F, tidy = F, results='hide'}
-pairs(mpg~.,data=mtcars, 
-      main="Scatterplot matrix for all the variables in the mtcars dataset")
+```{r, echo = F, message = F, warning = F, tidy = F, results='hide'}
+pairs(mpg ~ mpg+disp+hp+drat+wt,data=mtcars)
 ```
+
+## Table A: Fit parameters and Confidence Intervals
+```{r}
+summary(fit3)$coefficients
+sumCoef<-summary(fit3)$coefficients
+sumCoef[1,1]+c(-1,1)*qt(.975,df=fit3$df)*sumCoef[1,2]
+sumCoef[2,1]+c(-1,1)*qt(.975,df=fit3$df)*sumCoef[2,2]
+sumCoef[3,1]+c(-1,1)*qt(.975,df=fit3$df)*sumCoef[3,2]
+sumCoef[4,1]+c(-1,1)*qt(.975,df=fit3$df)*sumCoef[4,2]
+```
+
 
 ## Figure 2: Correlation matrix for all the variables in the mtcars dataset
 
-```{r, fig.width=10, fig.height=8,echo = F, message = F, warning = F, tidy = F, results='hide'}
+```{r, fig.width=8, fig.height=6,echo = F, message = F, warning = F, tidy = F, results='hide'}
 library(corrplot)
 M <- cor(mtsaved)
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
-corrplot(M, type = "upper", addCoef.col = "black", method = "shade", shade.col = NA, tl.col = "black", tl.srt = 45, col=col(200),  order = "AOE", title = "Correlation matrix for all the variables in the mtcars dataset")
+corrplot(M, type = "upper", addCoef.col = "black", method = "shade", shade.col = NA, tl.col = "black", tl.srt = 45, col=col(200),  order = "AOE")
 ```
 
 ## Figure 3: Standard R lm fit diagnostics for the fit that we chose to model mpg
 
 
 
-```{r, fig.width=12, fig.height=10, echo = F, message = F, warning = F, tidy = F, results='hide'}
+```{r, fig.width=8, fig.height=6, echo = F, message = F, warning = F, tidy = F, results='hide'}
 autoplot(fit3, data=mtcars, colour='am', which = 1:6, ncol = 2) 
 ```
 
 ## Figure 4: Boxplot showing how mpg depends on am in the mtcars dataset
 
-```{r, fig.width=12, fig.height=10, echo = F, message = F, warning = F, tidy = F, results='hide'}
+```{r, fig.width=4, fig.height=3, echo = F, message = F, warning = F, tidy = F, results='hide'}
 qplot(am, mpg, data=mtcars, geom=c("boxplot", "point"), 
-   fill=am, main="Mileage by Transmission Type (0=automatic, 1=manual)",
-   xlab="", ylab="Miles per Gallon")
+   fill=am, main="Fuel-efficiency by Transmission Type (0=automatic, 1=manual)",
+   xlab="", ylab="Miles per Gallon") + theme(plot.title = element_text(size=6))
 ```
