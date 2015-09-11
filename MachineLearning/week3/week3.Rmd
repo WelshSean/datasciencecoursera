@@ -1,0 +1,66 @@
+---
+title: "Week 3 Machine Learning"
+author: "Sean Clarke"
+date: "11 September 2015"
+output: html_document
+---
+
+# Q1
+
+Load the cell segmentation data from the AppliedPredictiveModeling package using the commands:
+library(AppliedPredictiveModeling)
+data(segmentationOriginal)
+library(caret)
+1. Subset the data to a training set and testing set based on the Case variable in the data set. 
+2. Set the seed to 125 and fit a CART model with the rpart method using all predictor variables and default caret settings. 
+3. In the final model what would be the final model prediction for cases with the following variable values:
+a. TotalIntench2 = 23,000; FiberWidthCh1 = 10; PerimStatusCh1=2 
+b. TotalIntench2 = 50,000; FiberWidthCh1 = 10;VarIntenCh4 = 100 
+c. TotalIntench2 = 57,000; FiberWidthCh1 = 8;VarIntenCh4 = 100 
+d. FiberWidthCh1 = 8;VarIntenCh4 = 100; PerimStatusCh1=2 
+a. WS 
+b. WS 
+c. PS
+d. Not possible to predict 
+ a. PS 
+b. WS 
+c. PS
+d. Not possible to predict 
+ a. PS 
+b. WS 
+c. PS
+d. WS 
+ a. Not possible to predict 
+b. WS 
+c. PS
+d. PS 
+
+```{r}
+library(AppliedPredictiveModeling)
+data(segmentationOriginal)
+library(caret)
+library(rpart)
+library(rattle)
+train <- subset(segmentationOriginal, Case=="Train")
+test <-  subset(segmentationOriginal, Case=="Test")
+set.seed(125)
+fit <- train(Class~.,data = train, method = "rpart")
+```
+
+
+a. TotalIntench2 = 23,000; FiberWidthCh1 = 10; PerimStatusCh1=2     PS
+b. TotalIntench2 = 50,000; FiberWidthCh1 = 10;VarIntenCh4 = 100     WS
+c. TotalIntench2 = 57,000; FiberWidthCh1 = 8;VarIntenCh4 = 100      PS
+d. FiberWidthCh1 = 8;VarIntenCh4 = 100; PerimStatusCh1=2            Cant Predict
+
+
+
+ a. PS 
+b. WS 
+c. PS
+d. Not possible to predict 
+
+
+# Q2
+
+
