@@ -1,0 +1,111 @@
+---
+title: "Week4 Quiz"
+author: "Sean Clarke"
+date: "29 September 2015"
+output: html_document
+---
+
+## Q1 
+
+Load the vowel.train and vowel.test data sets:
+library(ElemStatLearn)
+data(vowel.train)
+data(vowel.test) 
+Set the variable y to be a factor variable in both the training and test set. Then set the seed to 33833. Fit (1) a random forest predictor relating the factor variable y to the remaining variables and (2) a boosted predictor using the "gbm" method. Fit these both with the train() command in the caret package. 
+
+What are the accuracies for the two approaches on the test data set? What is the accuracy among the test set samples where the two methods agree?
+RF Accuracy = 0.3233 
+GBM Accuracy = 0.8371 
+Agreement Accuracy = 0.9983
+RF Accuracy = 0.9881 
+GBM Accuracy = 0.8371 
+Agreement Accuracy = 0.9983
+RF Accuracy = 0.6082 
+GBM Accuracy = 0.5152 
+Agreement Accuracy = 0.6361
+RF Accuracy = 0.9987 
+GBM Accuracy = 0.5152 
+Agreement Accuracy = 0.9985
+
+```{r}
+library(ElemStatLearn)
+library(caret)
+data(vowel.train)
+data(vowel.test) 
+vowel.test$y <- factor(vowel.test$y)
+vowel.train$y <- factor(vowel.train$y)
+set.seed(33833)
+rfmodel <- train(y ~. , data=vowel.train, method="rf")
+gbmmodel <- train(y ~. , data=vowel.train, method="gbm")
+
+rfpred <- predict(rfmodel, vowel.test)
+gbmpred <- predict(gbmmodel, vowel.test)
+
+confusionMatrix(vowel.test$y,rfpred)$overall['Accuracy']
+confusionMatrix(vowel.test$y,gbmpred)$overall['Accuracy']
+
+agreeind <- (rfpred == gbmpred)
+confusionMatrix(vowel.test$y[agreeind],gbmpred[agreeind])$overall['Accuracy']
+# RF Accuracy 0.6082251 
+# GBM accuracy 0.5108225 
+# Agreementaccuracy 0.6352201  
+```
+
+*** RF Accuracy = 0.6082 
+GBM Accuracy = 0.5152 
+Agreement Accuracy = 0.6361
+
+
+## Q2
+
+Load the Alzheimer's data using the following commands
+library(caret)
+library(gbm)
+set.seed(3433)
+library(AppliedPredictiveModeling)
+data(AlzheimerDisease)
+adData = data.frame(diagnosis,predictors)
+inTrain = createDataPartition(adData$diagnosis, p = 3/4)[[1]]
+training = adData[ inTrain,]
+testing = adData[-inTrain,]
+Set the seed to 62433 and predict diagnosis with all the other variables using a random forest ("rf"), boosted trees ("gbm") and linear discriminant analysis ("lda") model. Stack the predictions together using random forests ("rf"). What is the resulting accuracy on the test set? Is it better or worse than each of the individual predictions?
+Stacked Accuracy: 0.93 is better than all three other methods
+Stacked Accuracy: 0.76 is better than lda but not random forests or boosting.
+Stacked Accuracy: 0.88 is better than all three other methods
+Stacked Accuracy: 0.80 is better than random forests and lda and the same as boosting.
+
+
+
+```{r}
+library(caret)
+library(gbm)
+set.seed(3433)
+library(AppliedPredictiveModeling)
+data(AlzheimerDisease)
+adData = data.frame(diagnosis,predictors)
+inTrain = createDataPartition(adData$diagnosis, p = 3/4)[[1]]
+training = adData[ inTrain,]
+testing = adData[-inTrain,]
+set.seed(62433)
+# Build model
+rffit <- train(diagnosis ~ ., data=training, method="rf")
+gbmfit <- train(diagnosis ~ ., data=training, method="gbm")
+ldafit <- train(diagnosis ~ ., data=training, method="lda")
+
+# Evaluate Accuracy
+rfpred <- predict(rffit, testing)
+gbmpred <- predict(gbmfit, testing)
+ldapred <- predict(ldafit, testing)
+# Stacked Model
+combDF <- data.frame(rfpred, gbmpred, ldapred, diag=testing$diagnosis)
+combfit <- train(diag ~ ., data=combDF, method="rf")
+combpred <- predict(combfit, combDF)
+
+confusionMatrix(testing$diagnosis,rfpred)$overall['Accuracy']
+confusionMatrix(testing$diagnosis,gbmpred)$overall['Accuracy']
+confusionMatrix(testing$diagnosis,ldapred)$overall['Accuracy']
+confusionMatrix(testing$diagnosis,combpred)$overall['Accuracy']
+```
+
+
+*** 
