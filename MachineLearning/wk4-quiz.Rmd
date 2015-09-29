@@ -41,11 +41,11 @@ gbmmodel <- train(y ~. , data=vowel.train, method="gbm")
 rfpred <- predict(rfmodel, vowel.test)
 gbmpred <- predict(gbmmodel, vowel.test)
 
-confusionMatrix(vowel.test$y,rfpred)$overall['Accuracy']
-confusionMatrix(vowel.test$y,gbmpred)$overall['Accuracy']
+confusionMatrix(rfpred, vowel.test$y)$overall['Accuracy']
+confusionMatrix(gbmpred, vowel.test$y)$overall['Accuracy']
 
 agreeind <- (rfpred == gbmpred)
-confusionMatrix(vowel.test$y[agreeind],gbmpred[agreeind])$overall['Accuracy']
+confusionMatrix(gbmpred[agreeind], vowel.test$y[agreeind])$overall['Accuracy']
 # RF Accuracy 0.6082251 
 # GBM accuracy 0.5108225 
 # Agreementaccuracy 0.6352201  
@@ -101,10 +101,10 @@ combDF <- data.frame(rfpred, gbmpred, ldapred, diag=testing$diagnosis)
 combfit <- train(diag ~ ., data=combDF, method="rf")
 combpred <- predict(combfit, combDF)
 
-confusionMatrix(testing$diagnosis,rfpred)$overall['Accuracy']
-confusionMatrix(testing$diagnosis,gbmpred)$overall['Accuracy']
-confusionMatrix(testing$diagnosis,ldapred)$overall['Accuracy']
-confusionMatrix(testing$diagnosis,combpred)$overall['Accuracy']
+confusionMatrix(rfpred, testing$diagnosis)$overall['Accuracy']
+confusionMatrix(gbmpred, testing$diagnosis)$overall['Accuracy']
+confusionMatrix(ldapred, testing$diagnosis)$overall['Accuracy']
+confusionMatrix(combpred,testing$diagnosis)$overall['Accuracy']
 ```
 
 
