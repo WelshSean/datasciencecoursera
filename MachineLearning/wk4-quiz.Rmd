@@ -108,4 +108,106 @@ confusionMatrix(combpred,testing$diagnosis)$overall['Accuracy']
 ```
 
 
-*** 
+*** Stacked Accuracy: 0.80 is better than random forests and lda and the same as boosting.
+
+
+
+## Q3
+
+set.seed(3523)
+library(AppliedPredictiveModeling)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]]]]
+Set the seed to 233 and fit a lasso model to predict Compressive Strength. Which variable is the last coefficient to be set to zero as the penalty increases? (Hint: it may be useful to look up ?plot.enet).
+
+```{r}
+library(caret)
+library(elasticnet)
+set.seed(3523)
+library(AppliedPredictiveModeling)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]
+set.seed(233)
+fit <- train(CompressiveStrength ~ ., data = training, method = "lasso")
+plot.enet(fit$finalModel, xvar = "penalty", use.color = TRUE)
+```
+
+
+*** Cement
+
+
+## Q4
+
+Load the data on the number of visitors to the instructors blog from here: 
+https://d396qusza40orc.cloudfront.net/predmachlearn/gaData.csv
+
+Using the commands:
+
+library(lubridate)  # For year() function below
+dat = read.csv("gaData.csv")
+training = dat[year(dat$date) < 2012,]
+testing = dat[(year(dat$date)) > 2011,]
+tstrain = ts(training$visitsTumblr)
+Fit a model using the bats() function in the forecast package to the training time series. Then forecast this model for the remaining time points. For how many of the testing points is the true value within the 95% prediction interval bounds?
+
+
+```{r}
+library(lubridate)  # For year() function below
+library(forecast)
+dat = read.csv("gaData.csv")
+training = dat[year(dat$date) < 2012,]
+testing = dat[(year(dat$date)) > 2011,]
+tstrain = ts(training$visitsTumblr)
+tstest = ts(testing$visitsTumblr)
+fit <- bats(tstrain)
+forc <- forecast.bats(fit, level=95, h=nrow(testing))
+
+count <- 0
+for (i in 1:nrow(testing)) {
+  if (testing$visitsTumblr[i] > forc$lower[i]) {
+                if(testing$visitsTumblr[i] < forc$upper[i]) {
+
+    count <-count + 1
+                }
+  }
+}
+
+count/nrow(testing)
+```
+
+*** 0.961
+
+
+## Q5
+
+Load the concrete data with the commands:
+set.seed(3523)
+library(AppliedPredictiveModeling)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]
+Set the seed to 325 and fit a support vector machine using the e1071 package to predict Compressive Strength using the default settings. Predict on the testing set. What is the RMSE?
+
+
+```{r}
+et.seed(3523)
+library(AppliedPredictiveModeling)
+library(e1071)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]
+set.seed(325)
+fit <- svm(CompressiveStrength ~ ., data = training)
+pred <- predict(fit, testing)
+sqrt(mean((pred - testing$CompressiveStrength)^2))
+```
+
+*** 6.909
+
+*** not correct - tryig other value close to 6 - 6.72
